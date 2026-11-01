@@ -287,9 +287,13 @@ actually measured, so the script always describes the mp4 sitting beside it.
 
 **The type is bundled, not installed.** `create_video/fonts/` holds Inter and
 JetBrains Mono, and `create_video/fontpath.py` registers them with Pango on import -
-privately, for the rendering process only. On Windows, MiKTeX is usually installed
-per-user and is missing from the PATH a virtualenv sees; `create_video/texpath.py`
-finds it and prepends it automatically, and `LATS_TEX_BIN` overrides the search.
+privately, for the rendering process only. Build text with `txt()` and `mono()` from
+`theme.py`, not Manim's `Text`: Manim has Pango lay text out at a few points, where
+Pango rounds every letter to a whole unit and the spacing comes out visibly uneven,
+so those two lay it out 32x larger and scale it back. On Windows, MiKTeX is usually
+installed per-user and is missing from the PATH a virtualenv sees;
+`create_video/texpath.py` finds it and prepends it automatically, and `LATS_TEX_BIN`
+overrides the search.
 
 ---
 

@@ -316,7 +316,8 @@ class Part6Frontier(LATSScene):
                             color=INK_FAINT)
         pair = VGroup(compare_title, compare).arrange(DOWN, buff=0.4,
                                                       aligned_edge=LEFT)
-        pair.move_to([-2.6, -0.85, 0])
+        # Far enough left that "210,215" clears the limitation chips.
+        pair.move_to([-2.9, -0.85, 0])
         self.play(FadeIn(pair, shift=UP * 0.15), run_time=T_NORM)
         self.wait(7.4)
 
@@ -400,7 +401,8 @@ class Part6Frontier(LATSScene):
         rule = Line([-5.6, 2.05, 0], [5.6, 2.05, 0], stroke_color=STROKE,
                     stroke_width=2)
 
-        author_x, title_x, venue_x = -5.4, -3.1, 6.3
+        # title_x leaves the longest title (Hao et al.) clear of its venue.
+        author_x, title_x, venue_x = -5.4, -3.3, 6.3
         rows, top_y, step = VGroup(), 1.3, 0.72
         for i, (authors, short, venue, arxiv) in enumerate(REFERENCES):
             y = top_y - i * step
