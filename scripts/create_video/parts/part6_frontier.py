@@ -185,7 +185,7 @@ class Part6Frontier(LATSScene):
                             "What it buys, what it costs, and what came next")
         self.play(LaggedStart(*[FadeIn(m, shift=UP * 0.2) for m in card],
                               lag_ratio=0.18), run_time=T_NORM)
-        self.wait(4.4)
+        self.wait(0.37)
         self.play(FadeOut(card), run_time=T_FAST)
 
     # -- 2. Results ---------------------------------------------------------
@@ -266,7 +266,7 @@ class Part6Frontier(LATSScene):
             AnimationGroup(GrowFromEdge(bar, LEFT), FadeIn(value))
             for bar, value in zip(chart.bars, chart.values)
         ], lag_ratio=0.32), run_time=2.4)
-        self.wait(9.4)
+        self.wait(19.9)
 
         # A dashed line at full-LATS performance. Every bar that stops short of
         # it shows its own shortfall, so no annotation has to say how far.
@@ -279,7 +279,7 @@ class Part6Frontier(LATSScene):
             stroke_color=GOOD, stroke_width=2.5, dash_length=0.12,
             stroke_opacity=0.75)
         self.play(Create(line), run_time=T_SLOW)
-        self.wait(16.4)
+        self.wait(4.28)
         self.play(FadeOut(VGroup(chart, note, line)), run_time=T_NORM)
 
     # -- 4. The cost --------------------------------------------------------
@@ -359,7 +359,7 @@ class Part6Frontier(LATSScene):
 
         self.play(LaggedStart(*[FadeIn(c, shift=UP * 0.2) for c in cards],
                               lag_ratio=0.22), run_time=1.8)
-        self.wait(16.4)
+        self.wait(25.0)
 
         # Where it is heading, as a diagram rather than a sentence.
         origin_tag = chip("Search at inference time", INK_FAINT,
@@ -372,7 +372,7 @@ class Part6Frontier(LATSScene):
         self.play(FadeIn(origin_tag), run_time=T_FAST)
         self.play(Create(move), FadeIn(dest_tag, shift=RIGHT * 0.2),
                   run_time=T_SLOW)
-        self.wait(5.4)
+        self.wait(2.17)
         self.play(FadeOut(VGroup(cards, shift)), run_time=T_NORM)
 
     # -- 6. Close -----------------------------------------------------------
@@ -425,7 +425,7 @@ class Part6Frontier(LATSScene):
         self.play(LaggedStart(*[FadeIn(r, shift=RIGHT * 0.2) for r in rows],
                               lag_ratio=0.2), run_time=1.8)
         self.play(FadeIn(closing), run_time=T_FAST)
-        self.wait(9.0)
+        self.wait(14.57)
         self.play(FadeOut(VGroup(heading, rule, rows, closing)),
                   run_time=T_SLOW)
         self.wait(0.8)

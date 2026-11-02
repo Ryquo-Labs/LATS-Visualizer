@@ -257,7 +257,7 @@ class Part3MCTS(LATSScene):
         cite = self.footnote("UCB1  ·  Auer, Cesa-Bianchi and Fischer, 2002")
         self.play(FadeIn(gloss, shift=UP * 0.15), FadeIn(cite),
                   run_time=T_NORM)
-        self.wait(10.6)
+        self.wait(13.47)
 
         self.play(FadeOut(VGroup(machines, best, best_tag, least, least_tag,
                                  recipe, gloss, cite)), run_time=T_NORM)
@@ -328,7 +328,7 @@ class Part3MCTS(LATSScene):
         roll = self._rollout(tree, "b", 0.8)
         self.play(Create(roll[0]), run_time=T_NORM)
         self.play(FadeIn(roll[1], scale=0.7), run_time=T_FAST)
-        self.wait(4.6)
+        self.wait(9.37)
 
         self.play(*self._light(rail, 3), run_time=T_FAST)
         for key, value in (("b", 0.80), ("s0", 0.80)):

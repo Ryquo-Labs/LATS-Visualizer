@@ -169,6 +169,9 @@ class Part1Agents(LATSScene):
         tree = SearchTree(origin=[0, 3.25, 0], slot_width=1.5, level_gap=1.32,
                           radius=0.28)
 
+        # The narration starts over a moment of empty frame.
+        self.wait(1.57)
+
         # The linear agent: one decision after another, straight down.
         chain = ["root", "n1", "n2", "n3", "n4"]
         self.play(*tree.add_node("root", None, label="", kind="root"),
@@ -235,7 +238,10 @@ class Part1Agents(LATSScene):
     # -- 3. The agent/environment loop --------------------------------------
 
     def beat_loop(self):
-        self.set_header("What is an Agent?")
+        # The narrated cut plays this whole beat at 108%: run times and holds
+        # are the usual ones divided by 1.08, rounded so each lands on a whole
+        # frame, and the last hold is trimmed where the cut moves on.
+        self.set_header("What is an Agent?", run_time=0.63)
 
         agent = agent_glyph(scale=1.45).move_to([-3.5, 0.55, 0])
         env = env_glyph(scale=1.45).move_to([3.5, 0.55, 0])
@@ -245,10 +251,10 @@ class Part1Agents(LATSScene):
         env_cap.next_to(env, DOWN, buff=0.34)
 
         self.play(FadeIn(agent, shift=RIGHT * 0.3),
-                  FadeIn(agent_cap, shift=RIGHT * 0.3), run_time=T_NORM)
+                  FadeIn(agent_cap, shift=RIGHT * 0.3), run_time=0.66)
         self.play(FadeIn(env, shift=LEFT * 0.3),
-                  FadeIn(env_cap, shift=LEFT * 0.3), run_time=T_NORM)
-        self.wait(1.8)
+                  FadeIn(env_cap, shift=LEFT * 0.3), run_time=0.63)
+        self.wait(1.67)
 
         # Action: agent -> environment, arcing over the top.
         act = CurvedArrow(agent.get_right() + UP * 0.16 + RIGHT * 0.12,
@@ -266,26 +272,26 @@ class Part1Agents(LATSScene):
         obs_lab = txt("Observation", size=FS_BODY, color=TEAL, weight=MEDIUM)
         obs_lab.next_to(obs, DOWN, buff=0.14)
 
-        self.play(Create(act), FadeIn(act_lab), run_time=T_NORM)
-        self.wait(2.4)
-        self.play(Create(obs), FadeIn(obs_lab), run_time=T_NORM)
-        self.wait(4.0)
+        self.play(Create(act), FadeIn(act_lab), run_time=0.63)
+        self.wait(2.24)
+        self.play(Create(obs), FadeIn(obs_lab), run_time=0.66)
+        self.wait(3.7)
 
         # The loop runs, and runs, and runs.
         for target in (act, obs, act, obs):
             self.play(Indicate(target, color=ACCENT, scale_factor=1.04),
-                      run_time=0.52)
-        self.wait(3.7)
+                      run_time=0.5)
+        self.wait(3.4)
 
         reward = chip("Reward", GOOD)
         reward.next_to(obs_lab, DOWN, buff=0.22)
-        self.play(FadeIn(reward, shift=LEFT * 0.25), run_time=T_NORM)
+        self.play(FadeIn(reward, shift=LEFT * 0.25), run_time=0.63)
         self.play(Circumscribe(reward, color=GOOD, buff=0.12,
-                               stroke_width=3, run_time=1.2))
+                               stroke_width=3, run_time=1.13))
         for target in (act, obs, act, obs):
             self.play(Indicate(target, color=ACCENT, scale_factor=1.04),
-                      run_time=0.52)
-        self.wait(8.4)
+                      run_time=0.5)
+        self.wait(6.9)
 
         self.loop = VGroup(agent, env, agent_cap, env_cap, act, act_lab,
                            obs, obs_lab, reward)
@@ -326,11 +332,15 @@ class Part1Agents(LATSScene):
         return group
 
     def beat_vocab(self):
-        self.set_header("Terminology")
+        # The narrated cut opens this beat with a hard cut: new heading, and
+        # the big diagram gone, in a single frame.
+        self.set_header("Terminology", run_time=0)
 
         # Swap the full diagram for a compact, wordless one so each term can be
-        # pointed at the thing it names.
-        self.play(FadeOut(self.loop), run_time=T_FAST)
+        # pointed at the thing it names. Its pieces went on screen one at a
+        # time, so they come off one at a time: removing the group alone
+        # would leave them all in place.
+        self.remove(*self.loop)
         diagram = self._mini_loop([0, 1.95, 0])
         self.play(FadeIn(diagram), run_time=T_NORM)
 
@@ -354,12 +364,12 @@ class Part1Agents(LATSScene):
         entries.arrange(DOWN, aligned_edge=LEFT, buff=0.32)
         entries.move_to([0, -0.95, 0])
 
-        def reveal(index, hold):
+        def reveal(index, hold, run_time=0.85):
             self.play(FadeIn(entries[index], shift=RIGHT * 0.22),
                       Indicate(targets[index],
                                color=entries[index][0][0].get_color(),
                                scale_factor=1.14),
-                      run_time=0.85)
+                      run_time=run_time)
             self.wait(hold)
 
         # Environment, state, observation - then the distinction between the
@@ -376,15 +386,18 @@ class Part1Agents(LATSScene):
         cap_width(pomdp, 10.5)
         pomdp.move_to([0, -3.1, 0])
         self.play(Create(pair), FadeIn(pomdp), run_time=T_NORM)
-        self.wait(10.0)
-        self.play(FadeOut(pair), run_time=T_FAST)
+        self.wait(9.2)
 
-        for index, hold in ((3, 4.5), (4, 4.5)):
-            reveal(index, hold)
-        self.wait(2.6)
+        # From here to the end of the beat the narrated cut runs at 148%, so
+        # these run times and holds are the usual ones divided by 1.48,
+        # rounded to whole frames.
+        self.play(FadeOut(pair), run_time=0.26)
+        for index, hold in ((3, 3.04), (4, 3.04)):
+            reveal(index, hold, run_time=0.6)
+        self.wait(1.74)
 
         self.play(FadeOut(entries), FadeOut(diagram), FadeOut(pomdp),
-                  run_time=T_NORM)
+                  run_time=0.5)
 
     # -- 5. What the five terms mean for a language agent -------------------
 
@@ -539,7 +552,7 @@ class Part1Agents(LATSScene):
         cap_width(blind, 11.6)
         blind.move_to([0, -2.35, 0])
         self.play(FadeIn(blind, shift=UP * 0.15), run_time=T_NORM)
-        self.wait(8.6)
+        self.wait(3.24)
 
         self.clear_body(run_time=T_NORM)
         self.drop_header()

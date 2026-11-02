@@ -262,7 +262,7 @@ keys it does not recognise as JSON.
 
 ## The video
 
-`scripts/create_video.py` renders an 18-minute Manim explainer of the algorithm in
+`scripts/create_video.py` renders a 17-minute Manim explainer of the algorithm in
 six parts, from source.
 
 ```
@@ -281,7 +281,9 @@ directory under `results/video/`, holding one file per part, the concatenated
 of each part module, next to the animation it describes, with an `ON_SCREEN` dict
 beside it. `SCRIPT.md` is generated from those two dicts plus the timings the render
 actually measured, so the script always describes the mp4 sitting beside it.
-`--timing` compares words against screen time, beat by beat.
+`--timing` compares words against screen time, beat by beat. The holds and run times
+are matched, to the frame, to the recorded narration, so the voice-over drops
+straight onto a fresh `full.mp4` - change one and every later cue moves with it.
 
 **The type is bundled, not installed.** `create_video/fonts/` holds Inter and
 JetBrains Mono, and `create_video/fontpath.py` registers them with Pango on import -

@@ -172,7 +172,7 @@ class Part2Linear(LATSScene):
                    size=FS_SMALL)
         tag.move_to([0, 2.1, 0])
         self.play(FadeIn(tag, shift=DOWN * 0.2), run_time=T_NORM)
-        self.wait(8.4)
+        self.wait(11.04)
 
         chain = self._chain(TRAJECTORY, y=0.35)
         self.chain = chain
@@ -222,7 +222,7 @@ class Part2Linear(LATSScene):
                      color=INK_FAINT)
         append.move_to([0, -2.5, 0])
         self.play(FadeIn(append, shift=UP * 0.15), run_time=T_NORM)
-        self.wait(8.2)
+        self.wait(6.86)
         self.play(FadeOut(VGroup(mark, repeat, repeat2, back, blocked,
                                  append)), run_time=T_NORM)
 
