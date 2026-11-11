@@ -42,6 +42,10 @@ QUALITY = {
                "note": "1280x720 at 30 fps"},
     "final": {"flags": ["-r", "1920,1080", "--fps", "30"], "dir": "1080p30",
               "note": "1920x1080 at 30 fps"},
+    # 30 fps like "final", not Manim's 60 fps -qk: the holds are frame-matched
+    # to the narration at 30 fps, and only then does every cue land unchanged.
+    "4k": {"flags": ["-r", "3840,2160", "--fps", "30"], "dir": "2160p30",
+           "note": "3840x2160 at 30 fps"},
 }
 
 

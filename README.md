@@ -268,6 +268,7 @@ six parts, from source.
 ```
 python scripts/create_video.py                  # draft (854x480), for iterating
 python scripts/create_video.py --quality final  # delivery (1920x1080, 30 fps)
+python scripts/create_video.py --quality 4k     # 4K master (3840x2160, 30 fps)
 python scripts/create_video.py --parts 3 5      # re-render two parts, then re-join
 python scripts/create_video.py --check          # report the toolchain
 ```
