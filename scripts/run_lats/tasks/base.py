@@ -5,22 +5,26 @@ A task is an *environment*, not a prompt. It owns the state, it executes
 actions for real, and it is the only thing allowed to say what a reward is.
 The search loop never inspects ``data``; it only ever asks the task.
 
-Two of the methods exist for the two policies:
+Some of the methods exist for the two policies:
 
-``mock_propose``   the offline stand-in policy draws candidates from a bank the
-                   task defines, so the demo runs with no API key and produces
-                   the same trace every time.
-``render`` / ``parse_action``
-                   the OpenAI-backed policy needs the state as text, and needs
-                   to turn a JSON reply back into an :class:`Action`.
+``mock_propose`` / ``mock_evaluate``
+                   the offline stand-in policy draws candidates from a bank the
+                   task defines, and grades the states that come back with a
+                   heuristic the task defines, so the demo runs with no API key
+                   and produces the same trace every time.
+``render`` / ``render_observation`` / ``parse_action``
+                   the OpenAI-backed policy needs the state and the
+                   environment's reply as text, and needs to turn a JSON reply
+                   back into an :class:`Action`.
 """
 
 from __future__ import annotations
 
 import random
+import re
 from typing import Any
 
-from ..types import Action, Observation, Proposal
+from ..types import Action, Grade, Observation, Proposal
 
 
 class Task:
@@ -31,6 +35,10 @@ class Task:
     #: One of ``programming`` | ``game`` | ``qa``. Only used for display and
     #: for picking the paper's per-family defaults.
     family: str = "programming"
+    #: True when every state is already a whole answer - a complete program -
+    #: rather than a step on the way to one. Tree of Thoughts reads it to know
+    #: which states it may return.
+    complete_states: bool = False
     title: str = ""
     #: The problem statement shown to the agent and to the viewer.
     prompt: str = ""
@@ -61,7 +69,26 @@ class Task:
     def mock_propose(
         self, data: dict, rng: random.Random, n: int, reflections: list[str]
     ) -> list[Proposal]:
-        """Sample up to ``n`` candidate actions without calling a model."""
+        """Sample ``n`` candidate actions, with replacement, without calling a
+        model. Duplicates are the point: they are what ``SC(s)`` counts."""
+        raise NotImplementedError
+
+    def mock_evaluate(
+        self,
+        data: dict,
+        observation: Observation,
+        action: Action,
+        prior: float,
+        reflections: list[str],
+    ) -> Grade:
+        """Grade the state ``action`` led to, *after* the environment replied.
+
+        The offline stand-in for ``LM(s)``. It sees what a real model's value
+        prompt would see - the new state, the observation, the notes in
+        context, and the policy's own earlier opinion of the move - and must be
+        deterministic. It should also be fallible: a grader that could not be
+        fooled would make the search pointless.
+        """
         raise NotImplementedError
 
     # -- the online policy --------------------------------------------------
@@ -70,9 +97,30 @@ class Task:
         """The current state as text, for a real model's prompt."""
         raise NotImplementedError
 
+    def render_observation(self, observation: Observation) -> str:
+        """The environment's reply as the *agent* sees it.
+
+        Usually the observation text itself. A task whose text is written for
+        the viewer as well - one that names the gold answer, say - overrides
+        this so the value function is not handed the oracle.
+        """
+        return observation.text
+
     def action_schema(self) -> str:
-        """One paragraph telling a real model what JSON to return."""
+        """One paragraph telling a real model what JSON to return for *one*
+        action. The policy asks for ``n`` independent replies, not ``n``
+        actions in one reply - see :class:`~run_lats.llm.OpenAILLM`."""
         raise NotImplementedError
+
+    def signature(self, action: Action) -> str:
+        """What two independently sampled actions share when they *agree*.
+
+        The default is the action text with case and spacing normalised. A
+        task where two spellings reach the same state - ``2 * 11`` and
+        ``11 * 2`` - overrides it, so that ``SC(s)`` counts agreement on the
+        move rather than on its wording.
+        """
+        return re.sub(r"\s+", " ", action.text.strip().lower())
 
     def parse_action(self, obj: dict, data: dict) -> Action:
         """Turn one JSON object from a real model into an :class:`Action`.

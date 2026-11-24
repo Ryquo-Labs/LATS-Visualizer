@@ -1,9 +1,10 @@
 {
   "schema": "lats-trace/1",
   "name": "mock_multihop-qa_no-reflection",
+  "method": "lats",
   "generated_by": {
     "package": "run_lats",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "task": {
     "id": "multihop-qa",
@@ -38,16 +39,18 @@
     "reflect": false,
     "reflect_threshold": 1.0,
     "solved_at": 1.0,
-    "seed": 7
+    "seed": 7,
+    "evaluation": "after"
   },
   "policy": {
     "kind": "mock",
     "name": "MockLLM",
     "model": null,
     "seed": 7,
-    "calls": 5,
-    "tokens": 1069,
-    "tokens_are_estimated": true
+    "calls": 18,
+    "tokens": 4189,
+    "tokens_are_estimated": true,
+    "sampling": "independent"
   },
   "result": {
     "solved": true,
@@ -302,7 +305,8 @@
           "reflect": false,
           "reflect_threshold": 1.0,
           "solved_at": 1.0,
-          "seed": 7
+          "seed": 7,
+          "evaluation": "after"
         }
       },
       "focus": [
@@ -319,6 +323,7 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         }
@@ -349,6 +354,7 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         }
@@ -359,7 +365,7 @@
       "op": "expansion",
       "iteration": 1,
       "title": "Expansion",
-      "summary": "3 samples from the policy collapsed to 3 distinct states, each executed in the environment.",
+      "summary": "3 independent samples from the policy reached 3 distinct states, each executed in the environment; no two samples agreed.",
       "detail": {
         "parent": 0,
         "children": [
@@ -375,9 +381,7 @@
             "terminal": false,
             "reward": null,
             "samples": 1,
-            "lm": 0.4,
-            "sc": 0.3333,
-            "value": 0.3667,
+            "prior": 0.4,
             "rejected": null
           },
           {
@@ -392,9 +396,7 @@
             "terminal": false,
             "reward": null,
             "samples": 1,
-            "lm": 0.4,
-            "sc": 0.3333,
-            "value": 0.3667,
+            "prior": 0.4,
             "rejected": null
           },
           {
@@ -409,9 +411,7 @@
             "terminal": false,
             "reward": null,
             "samples": 1,
-            "lm": 0.4,
-            "sc": 0.3333,
-            "value": 0.3667,
+            "prior": 0.4,
             "rejected": null
           }
         ],
@@ -426,7 +426,7 @@
       "path": [
         0
       ],
-      "tokens": 123,
+      "tokens": 139,
       "state": {
         "0": {
           "visits": 1,
@@ -434,33 +434,37 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 1,
-          "value": 0.3667,
+          "value": null,
           "reward": null,
-          "lm": 0.4,
+          "lm": null,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.3667,
+          "value": null,
           "reward": null,
-          "lm": 0.4,
+          "lm": null,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": null,
           "reward": null,
-          "lm": 0.4,
+          "lm": null,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         }
@@ -471,33 +475,40 @@
       "op": "evaluation",
       "iteration": 1,
       "title": "Evaluation",
-      "summary": "V(s) = 0.5\u00b7LM(s) + 0.5\u00b7SC(s), scored after the environment replied.",
+      "summary": "V(s) = 0.5\u00b7LM(s) + 0.5\u00b7SC(s). LM(s) is graded now, from each state with the environment's reply in it.",
       "detail": {
         "lam": 0.5,
+        "timing": "after",
         "scores": [
           {
             "id": 1,
             "label": "search[UCT]",
-            "lm": 0.4,
+            "prior": 0.4,
+            "lm": 0.591,
             "sc": 0.3333,
-            "value": 0.3667,
-            "reward": null
+            "value": 0.4622,
+            "reward": null,
+            "why": "What has been read covers 4 of the question's 11 key words; it names a venue and a year."
           },
           {
             "id": 2,
             "label": "search[Monte Carlo Tree Search]",
-            "lm": 0.4,
+            "prior": 0.4,
+            "lm": 0.591,
             "sc": 0.3333,
-            "value": 0.3667,
-            "reward": null
+            "value": 0.4622,
+            "reward": null,
+            "why": "What has been read covers 4 of the question's 11 key words; it names a venue and a year."
           },
           {
             "id": 3,
             "label": "search[Reflexion]",
-            "lm": 0.4,
+            "prior": 0.4,
+            "lm": 0.445,
             "sc": 0.3333,
-            "value": 0.3667,
-            "reward": null
+            "value": 0.3892,
+            "reward": null,
+            "why": "What has been read covers 2 of the question's 11 key words; it names a venue and a year."
           }
         ]
       },
@@ -509,7 +520,7 @@
       "path": [
         0
       ],
-      "tokens": 123,
+      "tokens": 663,
       "state": {
         "0": {
           "visits": 1,
@@ -517,33 +528,37 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         }
@@ -564,7 +579,79 @@
         ],
         "terminal": 10,
         "truncated": true,
-        "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006."
+        "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+        "graded": [
+          {
+            "id": 4,
+            "label": "search[Monte Carlo Tree Search]",
+            "prior": 0.65,
+            "lm": 0.664,
+            "sc": 0.3333,
+            "value": 0.4987,
+            "reward": null,
+            "why": "What has been read covers 5 of the question's 11 key words; it names a venue and a year."
+          },
+          {
+            "id": 5,
+            "label": "search[Reasoning via Planning]",
+            "prior": 0.4,
+            "lm": 0.591,
+            "sc": 0.3333,
+            "value": 0.4622,
+            "reward": null,
+            "why": "What has been read covers 4 of the question's 11 key words; it names a venue and a year."
+          },
+          {
+            "id": 6,
+            "label": "search[AlphaGo]",
+            "prior": 0.4,
+            "lm": 0.591,
+            "sc": 0.3333,
+            "value": 0.4622,
+            "reward": null,
+            "why": "What has been read covers 4 of the question's 11 key words; it names a venue and a year."
+          },
+          {
+            "id": 7,
+            "label": "search[Language Agent Tree Search]",
+            "prior": 0.4,
+            "lm": 0.809,
+            "sc": 0.6667,
+            "value": 0.7378,
+            "reward": null,
+            "why": "What has been read covers 7 of the question's 11 key words; it names a venue and a year."
+          },
+          {
+            "id": 8,
+            "label": "finish[ECML 2006]",
+            "prior": 0.655,
+            "lm": 0.03,
+            "sc": 0.3333,
+            "value": 0.1817,
+            "reward": 0.0,
+            "why": "The environment rejected 'ECML 2006'."
+          },
+          {
+            "id": 9,
+            "label": "finish[ECML 2006]",
+            "prior": 0.655,
+            "lm": 0.03,
+            "sc": 0.3333,
+            "value": 0.1817,
+            "reward": 0.0,
+            "why": "The environment rejected 'ECML 2006'."
+          },
+          {
+            "id": 10,
+            "label": "search[Monte Carlo Tree Search]",
+            "prior": 0.35,
+            "lm": 0.15,
+            "sc": 0.6667,
+            "value": 0.4083,
+            "reward": null,
+            "why": "Nothing new: that document had already been read."
+          }
+        ]
       },
       "focus": [
         1,
@@ -578,7 +665,7 @@
         7,
         10
       ],
-      "tokens": 871,
+      "tokens": 3317,
       "state": {
         "0": {
           "visits": 1,
@@ -586,96 +673,107 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "4": {
           "visits": 1,
-          "value": 0.4917,
+          "value": 0.4987,
           "reward": null,
-          "lm": 0.65,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.65,
           "terminal": false,
           "reflected": false
         },
         "5": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "6": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "7": {
           "visits": 1,
-          "value": 0.5333,
+          "value": 0.7378,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.809,
           "sc": 0.6667,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "8": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "9": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "10": {
           "visits": 1,
-          "value": 0.5083,
+          "value": 0.4083,
           "reward": null,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.6667,
+          "prior": 0.35,
           "terminal": true,
           "reflected": false
         }
@@ -695,44 +793,44 @@
             "id": 10,
             "before": {
               "visits": 1,
-              "value": 0.5083
+              "value": 0.4083
             },
             "after": {
               "visits": 2,
-              "value": 0.2542
+              "value": 0.2042
             }
           },
           {
             "id": 7,
             "before": {
               "visits": 1,
-              "value": 0.5333
+              "value": 0.7378
             },
             "after": {
               "visits": 2,
-              "value": 0.2667
+              "value": 0.3689
             }
           },
           {
             "id": 4,
             "before": {
               "visits": 1,
-              "value": 0.4917
+              "value": 0.4987
             },
             "after": {
               "visits": 2,
-              "value": 0.2458
+              "value": 0.2493
             }
           },
           {
             "id": 1,
             "before": {
               "visits": 1,
-              "value": 0.3667
+              "value": 0.4622
             },
             "after": {
               "visits": 2,
-              "value": 0.1833
+              "value": 0.2311
             }
           },
           {
@@ -762,7 +860,7 @@
         7,
         10
       ],
-      "tokens": 871,
+      "tokens": 3317,
       "state": {
         "0": {
           "visits": 2,
@@ -770,96 +868,107 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.1833,
+          "value": 0.2311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "4": {
           "visits": 2,
-          "value": 0.2458,
+          "value": 0.2493,
           "reward": null,
-          "lm": 0.65,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.65,
           "terminal": false,
           "reflected": false
         },
         "5": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "6": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "7": {
           "visits": 2,
-          "value": 0.2667,
+          "value": 0.3689,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.809,
           "sc": 0.6667,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "8": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "9": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "10": {
           "visits": 2,
-          "value": 0.2542,
+          "value": 0.2042,
           "reward": 0.0,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.6667,
+          "prior": 0.35,
           "terminal": true,
           "reflected": false
         }
@@ -870,7 +979,7 @@
       "op": "selection",
       "iteration": 2,
       "title": "Selection",
-      "summary": "search[Monte Carlo Tree Search] wins with UCT 1.1992 = 0.3667 exploit + 0.8326 explore.",
+      "summary": "search[Monte Carlo Tree Search] wins with UCT 1.2947 = 0.4622 exploit + 0.8326 explore.",
       "detail": {
         "levels": [
           {
@@ -882,9 +991,9 @@
                 "id": 1,
                 "label": "search[UCT]",
                 "visits": 2,
-                "exploit": 0.1833,
+                "exploit": 0.2311,
                 "explore": 0.5887,
-                "uct": 0.772,
+                "uct": 0.8198,
                 "available": true,
                 "chosen": false
               },
@@ -892,9 +1001,9 @@
                 "id": 2,
                 "label": "search[Monte Carlo Tree Search]",
                 "visits": 1,
-                "exploit": 0.3667,
+                "exploit": 0.4622,
                 "explore": 0.8326,
-                "uct": 1.1992,
+                "uct": 1.2947,
                 "available": true,
                 "chosen": true
               },
@@ -902,9 +1011,9 @@
                 "id": 3,
                 "label": "search[Reflexion]",
                 "visits": 1,
-                "exploit": 0.3667,
+                "exploit": 0.3892,
                 "explore": 0.8326,
-                "uct": 1.1992,
+                "uct": 1.2217,
                 "available": true,
                 "chosen": false
               }
@@ -921,7 +1030,7 @@
         0,
         2
       ],
-      "tokens": 871,
+      "tokens": 3317,
       "state": {
         "0": {
           "visits": 2,
@@ -929,96 +1038,107 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.1833,
+          "value": 0.2311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "4": {
           "visits": 2,
-          "value": 0.2458,
+          "value": 0.2493,
           "reward": null,
-          "lm": 0.65,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.65,
           "terminal": false,
           "reflected": false
         },
         "5": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "6": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "7": {
           "visits": 2,
-          "value": 0.2667,
+          "value": 0.3689,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.809,
           "sc": 0.6667,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "8": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "9": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "10": {
           "visits": 2,
-          "value": 0.2542,
+          "value": 0.2042,
           "reward": 0.0,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.6667,
+          "prior": 0.35,
           "terminal": true,
           "reflected": false
         }
@@ -1029,7 +1149,7 @@
       "op": "expansion",
       "iteration": 2,
       "title": "Expansion",
-      "summary": "3 samples from the policy collapsed to 3 distinct states, each executed in the environment.",
+      "summary": "3 independent samples from the policy reached 3 distinct states, each executed in the environment; no two samples agreed.",
       "detail": {
         "parent": 2,
         "children": [
@@ -1045,9 +1165,7 @@
             "terminal": false,
             "reward": null,
             "samples": 1,
-            "lm": 0.4,
-            "sc": 0.3333,
-            "value": 0.3667,
+            "prior": 0.4,
             "rejected": null
           },
           {
@@ -1063,9 +1181,7 @@
             "terminal": true,
             "reward": 1.0,
             "samples": 1,
-            "lm": 0.85,
-            "sc": 0.3333,
-            "value": 0.5917,
+            "prior": 0.85,
             "rejected": null
           },
           {
@@ -1080,9 +1196,7 @@
             "terminal": false,
             "reward": null,
             "samples": 1,
-            "lm": 0.35,
-            "sc": 0.3333,
-            "value": 0.3417,
+            "prior": 0.35,
             "rejected": null
           }
         ],
@@ -1098,7 +1212,7 @@
         0,
         2
       ],
-      "tokens": 1069,
+      "tokens": 3531,
       "state": {
         "0": {
           "visits": 2,
@@ -1106,123 +1220,137 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.1833,
+          "value": 0.2311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "4": {
           "visits": 2,
-          "value": 0.2458,
+          "value": 0.2493,
           "reward": null,
-          "lm": 0.65,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.65,
           "terminal": false,
           "reflected": false
         },
         "5": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "6": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "7": {
           "visits": 2,
-          "value": 0.2667,
+          "value": 0.3689,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.809,
           "sc": 0.6667,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "8": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "9": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "10": {
           "visits": 2,
-          "value": 0.2542,
+          "value": 0.2042,
           "reward": 0.0,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.6667,
+          "prior": 0.35,
           "terminal": true,
           "reflected": false
         },
         "11": {
           "visits": 1,
-          "value": 0.3667,
+          "value": null,
           "reward": null,
-          "lm": 0.4,
+          "lm": null,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "12": {
           "visits": 1,
-          "value": 0.5917,
+          "value": null,
           "reward": 1.0,
-          "lm": 0.85,
+          "lm": null,
           "sc": 0.3333,
+          "prior": 0.85,
           "terminal": true,
           "reflected": false
         },
         "13": {
           "visits": 1,
-          "value": 0.3417,
+          "value": null,
           "reward": null,
-          "lm": 0.35,
+          "lm": null,
           "sc": 0.3333,
+          "prior": 0.35,
           "terminal": false,
           "reflected": false
         }
@@ -1233,33 +1361,40 @@
       "op": "evaluation",
       "iteration": 2,
       "title": "Evaluation",
-      "summary": "V(s) = 0.5\u00b7LM(s) + 0.5\u00b7SC(s), scored after the environment replied.",
+      "summary": "V(s) = 0.5\u00b7LM(s) + 0.5\u00b7SC(s). LM(s) is graded now, from each state with the environment's reply in it.",
       "detail": {
         "lam": 0.5,
+        "timing": "after",
         "scores": [
           {
             "id": 11,
             "label": "search[Reflexion]",
-            "lm": 0.4,
+            "prior": 0.4,
+            "lm": 0.664,
             "sc": 0.3333,
-            "value": 0.3667,
-            "reward": null
+            "value": 0.4987,
+            "reward": null,
+            "why": "What has been read covers 5 of the question's 11 key words; it names a venue and a year."
           },
           {
             "id": 12,
             "label": "finish[Computers and Games 2006]",
-            "lm": 0.85,
+            "prior": 0.85,
+            "lm": 0.97,
             "sc": 0.3333,
-            "value": 0.5917,
-            "reward": 1.0
+            "value": 0.6517,
+            "reward": 1.0,
+            "why": "The environment accepted 'Computers and Games 2006'."
           },
           {
             "id": 13,
             "label": "search[Monte Carlo Tree Search]",
-            "lm": 0.35,
+            "prior": 0.35,
+            "lm": 0.15,
             "sc": 0.3333,
-            "value": 0.3417,
-            "reward": null
+            "value": 0.2417,
+            "reward": null,
+            "why": "Nothing new: that document had already been read."
           }
         ]
       },
@@ -1272,7 +1407,7 @@
         0,
         2
       ],
-      "tokens": 1069,
+      "tokens": 4189,
       "state": {
         "0": {
           "visits": 2,
@@ -1280,123 +1415,137 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.1833,
+          "value": 0.2311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "4": {
           "visits": 2,
-          "value": 0.2458,
+          "value": 0.2493,
           "reward": null,
-          "lm": 0.65,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.65,
           "terminal": false,
           "reflected": false
         },
         "5": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "6": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "7": {
           "visits": 2,
-          "value": 0.2667,
+          "value": 0.3689,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.809,
           "sc": 0.6667,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "8": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "9": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "10": {
           "visits": 2,
-          "value": 0.2542,
+          "value": 0.2042,
           "reward": 0.0,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.6667,
+          "prior": 0.35,
           "terminal": true,
           "reflected": false
         },
         "11": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4987,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "12": {
           "visits": 1,
-          "value": 0.5917,
+          "value": 0.6517,
           "reward": 1.0,
-          "lm": 0.85,
+          "lm": 0.97,
           "sc": 0.3333,
+          "prior": 0.85,
           "terminal": true,
           "reflected": false
         },
         "13": {
           "visits": 1,
-          "value": 0.3417,
+          "value": 0.2417,
           "reward": null,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.3333,
+          "prior": 0.35,
           "terminal": false,
           "reflected": false
         }
@@ -1425,7 +1574,7 @@
         2,
         12
       ],
-      "tokens": 1069,
+      "tokens": 4189,
       "state": {
         "0": {
           "visits": 2,
@@ -1433,123 +1582,137 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.1833,
+          "value": 0.2311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "4": {
           "visits": 2,
-          "value": 0.2458,
+          "value": 0.2493,
           "reward": null,
-          "lm": 0.65,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.65,
           "terminal": false,
           "reflected": false
         },
         "5": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "6": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "7": {
           "visits": 2,
-          "value": 0.2667,
+          "value": 0.3689,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.809,
           "sc": 0.6667,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "8": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "9": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "10": {
           "visits": 2,
-          "value": 0.2542,
+          "value": 0.2042,
           "reward": 0.0,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.6667,
+          "prior": 0.35,
           "terminal": true,
           "reflected": false
         },
         "11": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4987,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "12": {
           "visits": 1,
-          "value": 0.5917,
+          "value": 0.6517,
           "reward": 1.0,
-          "lm": 0.85,
+          "lm": 0.97,
           "sc": 0.3333,
+          "prior": 0.85,
           "terminal": true,
           "reflected": false
         },
         "13": {
           "visits": 1,
-          "value": 0.3417,
+          "value": 0.2417,
           "reward": null,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.3333,
+          "prior": 0.35,
           "terminal": false,
           "reflected": false
         }
@@ -1569,22 +1732,22 @@
             "id": 12,
             "before": {
               "visits": 1,
-              "value": 0.5917
+              "value": 0.6517
             },
             "after": {
               "visits": 2,
-              "value": 0.7958
+              "value": 0.8258
             }
           },
           {
             "id": 2,
             "before": {
               "visits": 1,
-              "value": 0.3667
+              "value": 0.4622
             },
             "after": {
               "visits": 2,
-              "value": 0.6833
+              "value": 0.7311
             }
           },
           {
@@ -1610,7 +1773,7 @@
         2,
         12
       ],
-      "tokens": 1069,
+      "tokens": 4189,
       "state": {
         "0": {
           "visits": 3,
@@ -1618,123 +1781,137 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.1833,
+          "value": 0.2311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 2,
-          "value": 0.6833,
+          "value": 0.7311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "4": {
           "visits": 2,
-          "value": 0.2458,
+          "value": 0.2493,
           "reward": null,
-          "lm": 0.65,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.65,
           "terminal": false,
           "reflected": false
         },
         "5": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "6": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "7": {
           "visits": 2,
-          "value": 0.2667,
+          "value": 0.3689,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.809,
           "sc": 0.6667,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "8": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "9": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "10": {
           "visits": 2,
-          "value": 0.2542,
+          "value": 0.2042,
           "reward": 0.0,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.6667,
+          "prior": 0.35,
           "terminal": true,
           "reflected": false
         },
         "11": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4987,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "12": {
           "visits": 2,
-          "value": 0.7958,
+          "value": 0.8258,
           "reward": 1.0,
-          "lm": 0.85,
+          "lm": 0.97,
           "sc": 0.3333,
+          "prior": 0.85,
           "terminal": true,
           "reflected": false
         },
         "13": {
           "visits": 1,
-          "value": 0.3417,
+          "value": 0.2417,
           "reward": null,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.3333,
+          "prior": 0.35,
           "terminal": false,
           "reflected": false
         }
@@ -1770,7 +1947,7 @@
         2,
         12
       ],
-      "tokens": 1069,
+      "tokens": 4189,
       "state": {
         "0": {
           "visits": 3,
@@ -1778,123 +1955,137 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.1833,
+          "value": 0.2311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 2,
-          "value": 0.6833,
+          "value": 0.7311,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "3": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.3892,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.445,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "4": {
           "visits": 2,
-          "value": 0.2458,
+          "value": 0.2493,
           "reward": null,
-          "lm": 0.65,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.65,
           "terminal": false,
           "reflected": false
         },
         "5": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "6": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4622,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.591,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "7": {
           "visits": 2,
-          "value": 0.2667,
+          "value": 0.3689,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.809,
           "sc": 0.6667,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "8": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "9": {
           "visits": 1,
-          "value": 0.4942,
+          "value": 0.1817,
           "reward": 0.0,
-          "lm": 0.655,
+          "lm": 0.03,
           "sc": 0.3333,
+          "prior": 0.655,
           "terminal": true,
           "reflected": false
         },
         "10": {
           "visits": 2,
-          "value": 0.2542,
+          "value": 0.2042,
           "reward": 0.0,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.6667,
+          "prior": 0.35,
           "terminal": true,
           "reflected": false
         },
         "11": {
           "visits": 1,
-          "value": 0.3667,
+          "value": 0.4987,
           "reward": null,
-          "lm": 0.4,
+          "lm": 0.664,
           "sc": 0.3333,
+          "prior": 0.4,
           "terminal": false,
           "reflected": false
         },
         "12": {
           "visits": 2,
-          "value": 0.7958,
+          "value": 0.8258,
           "reward": 1.0,
-          "lm": 0.85,
+          "lm": 0.97,
           "sc": 0.3333,
+          "prior": 0.85,
           "terminal": true,
           "reflected": false
         },
         "13": {
           "visits": 1,
-          "value": 0.3417,
+          "value": 0.2417,
           "reward": null,
-          "lm": 0.35,
+          "lm": 0.15,
           "sc": 0.3333,
+          "prior": 0.35,
           "terminal": false,
           "reflected": false
         }

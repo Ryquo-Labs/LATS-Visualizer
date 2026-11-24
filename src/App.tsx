@@ -18,6 +18,13 @@
  * can get, and tapping a node moves you to its detail rather than shrinking
  * both. Which of the three is in play is a separate question from how much
  * room the chrome may take, and the code keeps them separate.
+ *
+ * **Three ways to use it.** *Replay* is the above: one trace, explained step by
+ * step. *Compare* puts two traces side by side - LATS against ReAct, Reflexion
+ * or Tree of Thoughts on the same task, or an ablation against its run - so the
+ * difference between two searches is what is on screen. *Play* hands the
+ * student the judgements - which node to expand, how good each state is, what
+ * to write after a failure - and runs the rest of the loop around them.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -38,14 +45,20 @@ import Snackbar from '@mui/material/Snackbar'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import CompareIcon from '@mui/icons-material/CompareArrows'
 import DarkModeIcon from '@mui/icons-material/DarkModeOutlined'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import LightModeIcon from '@mui/icons-material/LightModeOutlined'
+import PlayIcon from '@mui/icons-material/TouchAppOutlined'
+import ReplayIcon from '@mui/icons-material/SlideshowOutlined'
 
+import Compare from './components/Compare'
 import NodeDetail from './components/NodeDetail'
 import OperationPanel from './components/OperationPanels'
 import Timeline from './components/Timeline'
@@ -53,8 +66,13 @@ import TraceHeader from './components/TraceHeader'
 import TracePicker, { type Source } from './components/TracePicker'
 import TreeView from './components/TreeView'
 import Tour, { type TourStop } from './components/Tour'
+import { gradeOf } from './lib/grades'
 import { viewAt } from './lib/layout'
-import { readTraceFile, validateManifest, validateTrace } from './lib/validate'
+import { MANIFEST, fetchBundled, url } from './lib/load'
+import { caveats, isLegacy, summaryOf } from './lib/methods'
+import { counterpart } from './lib/pairing'
+import { readTraceFile, validateManifest } from './lib/validate'
+import PlayView from './play/PlayView'
 import type { Trace } from './types'
 import {
   BAD,
@@ -76,15 +94,22 @@ import {
 /** Milliseconds per step at 1x. Slow enough to read the panel. */
 const BASE_TICK = 1100
 
-/** Where the bundled traces are served from, relative to the app's base. */
-const TRACES = 'traces/'
-/** Their index. Beside the folder rather than in it: it is not a trace. */
-const MANIFEST = 'traces-manifest.json'
-
-const url = (file: string) => new URL(file, document.baseURI).href
-
 /** Which half of the app a phone is looking at. */
 type Pane = 'tree' | 'step'
+
+/** One trace explained, two compared, or a search the student takes part in. */
+type Mode = 'replay' | 'compare' | 'play'
+
+/** What a source needs to know about the trace behind it, for an upload. */
+function describe(t: Trace): Pick<Source, 'task' | 'taskTitle' | 'solved' | 'method' | 'legacy'> {
+  return {
+    task: t.task?.id,
+    taskTitle: t.task?.title,
+    solved: t.result?.solved,
+    method: t.method ?? 'lats',
+    legacy: isLegacy(t),
+  }
+}
 
 export default function App() {
   const [sources, setSources] = useState<Source[]>([])
@@ -105,14 +130,21 @@ export default function App() {
   const [dragging, setDragging] = useState(false)
   const dragDepth = useRef(0)
 
+  const [mode, setMode] = useState<Mode>('replay')
+  /** The pair the comparison opens on. Changing it opens a fresh comparison. */
+  const [pair, setPair] = useState<[string | null, string | null]>([null, null])
+  /** Legacy traces whose caveat the reader has dismissed, by name. */
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set())
+
   const [tour, setTour] = useState(0)
   const tourOffered = useRef(false)
   const pickerRef = useRef<HTMLDivElement>(null)
+  const modesRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const timelineRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
-  const { mode, toggle } = useColorMode()
+  const { mode: colorMode, toggle } = useColorMode()
 
   // Two questions, not one. *Is this a phone-sized screen* decides the chrome:
   // a folded-up header, a scrubber over two rows, an upload button with no
@@ -154,6 +186,8 @@ export default function App() {
             taskTitle: entry.title,
             note: entry.note,
             solved: entry.solved,
+            method: entry.method ?? 'lats',
+            legacy: entry.legacy,
           })),
         )
         if (manifest.traces.length === 0) {
@@ -194,27 +228,19 @@ export default function App() {
       return
     }
 
+    if (!source.file) return
     let cancelled = false
     setLoading(true)
-    ;(async () => {
-      try {
-        const res = await fetch(url(`${TRACES}${source.file}`))
-        if (!res.ok) throw new Error(`${source.file} returned ${res.status}`)
-        const result = validateTrace(await res.json())
-        if (cancelled) return
-        if (!result.ok) {
-          setErrors([`traces/${source.file} did not validate:`, ...result.errors])
-          setLoading(false)
-          return
-        }
-        setWarnings(result.warnings)
-        applyTrace(result.trace)
-      } catch (err) {
-        if (cancelled) return
-        setErrors([`Could not load traces/${source.file}: ${String(err)}`])
+    void fetchBundled(source.file).then((result) => {
+      if (cancelled) return
+      if (!result.ok) {
+        setErrors(result.errors)
         setLoading(false)
+        return
       }
-    })()
+      setWarnings(result.warnings)
+      applyTrace(result.trace)
+    })
     return () => {
       cancelled = true
     }
@@ -252,14 +278,21 @@ export default function App() {
       {
         id: 'picker',
         title: 'Pick a run',
-        body: 'Eleven searches ship with the viewer, grouped by environment: the plain run first, then the ablations that turn one knob off, then the same puzzle under a real model. Or drop a trace of your own on the window.',
+        body: `${sources.length || 'The'} searches ship with the viewer, grouped by environment: LATS first, then the ablations that turn one knob off, then ReAct, Reflexion and Tree of Thoughts on the same task, then real-model runs. Or drop a trace of your own on the window.`,
         target: pickerRef,
+        place: 'bottom',
+      },
+      {
+        id: 'modes',
+        title: 'Replay, compare, or play',
+        body: 'Replay explains one search step by step. Compare puts two side by side — LATS against a baseline on the same task. Play hands you the judgements LATS makes: which node to expand, how good each state is, what to write after a failure.',
+        target: modesRef,
         place: 'bottom',
       },
       {
         id: 'header',
         title: 'What is being searched',
-        body: 'The task, and the settings this run used — n samples per expansion, the exploration weight w, the blend λ between the model’s own score and self-consistency. Hover any of them for what it means.',
+        body: 'The task, the method, and the settings this run used — n samples per expansion, the exploration weight w, the blend λ between the value function’s grade and self-consistency. Hover any of them for what it means.',
         target: headerRef,
         place: 'bottom',
       },
@@ -273,12 +306,12 @@ export default function App() {
       {
         id: 'panel',
         title: 'Read what just happened',
-        body: 'Every step is explained here with its own arithmetic — the two halves of UCT fighting over a branch, the samples that collapsed into one child, the reward travelling back up. Click any node in the tree for its full detail.',
+        body: 'Every step is explained here with its own arithmetic — the two halves of UCT fighting over a branch, each state’s grade before and after the environment replied, the reward travelling back up. Click any node in the tree for its full detail.',
         target: panelRef,
         place: 'left',
       },
     ],
-    [],
+    [sources.length],
   )
 
   // -- uploads -------------------------------------------------------------
@@ -302,7 +335,7 @@ export default function App() {
         label: result.trace.name || file.name,
         kind: 'uploaded',
         note: `${file.name} · ${result.trace.nodes.length} nodes · ${result.trace.steps.length} steps`,
-        solved: result.trace.result?.solved,
+        ...describe(result.trace),
       })
       if (result.warnings.length) problems.push(...result.warnings)
     }
@@ -366,8 +399,9 @@ export default function App() {
   }, [playing, index, last, speed, trace])
 
   useEffect(() => {
-    // The tour owns the arrow keys while it is up.
-    if (tour > 0) return
+    // The tour owns the arrow keys while it is up, and the other two modes
+    // have transports of their own.
+    if (tour > 0 || mode !== 'replay') return
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
       if (target && /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return
@@ -388,7 +422,37 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [last, tour])
+  }, [last, tour, mode])
+
+  // -- the three modes -------------------------------------------------------
+
+  const switchMode = (next: Mode) => {
+    if (next === 'compare') setPair([current, counterpart(sources, current)])
+    setPlaying(false)
+    setMode(next)
+  }
+
+  /** From play mode: the finished session beside the search LATS ran alone. */
+  const compareSession = useCallback(
+    (played: Trace, bundled: string | null) => {
+      const key = `uploaded:played:${Date.now()}`
+      setUploaded((prev) => ({ ...prev, [key]: played }))
+      setSources((prev) => [
+        ...prev,
+        {
+          key,
+          label: played.name,
+          kind: 'uploaded',
+          note: `played in this session · ${played.nodes.length} nodes`,
+          ...describe(played),
+        },
+      ])
+      const other = bundled ? `bundled:${bundled}` : null
+      setPair([key, sources.some((s) => s.key === other) ? other : null])
+      setMode('compare')
+    },
+    [sources],
+  )
 
   // -- derived -------------------------------------------------------------
 
@@ -488,7 +552,7 @@ export default function App() {
             </Typography>
           </Stack>
           <Typography variant="body2" sx={{ mt: 0.4, color: INK }}>
-            {step.summary}
+            {trace ? summaryOf(trace, step) : step.summary}
           </Typography>
         </Box>
       )}
@@ -501,6 +565,7 @@ export default function App() {
             <NodeDetail
               node={selectedNode}
               state={view?.state(selectedNode.id)}
+              grade={trace ? gradeOf(trace, selectedNode.id) : undefined}
               onClose={() => setSelected(null)}
             />
           </>
@@ -519,6 +584,48 @@ export default function App() {
       compact={compact}
     />
   )
+
+  const modes = (
+    <ToggleButtonGroup
+      ref={modesRef}
+      size="small"
+      exclusive
+      value={mode}
+      onChange={(_, next: Mode | null) => next && switchMode(next)}
+      aria-label="what to do with the traces"
+      sx={{
+        flexShrink: 0,
+        '& .MuiToggleButton-root': {
+          py: 0.4,
+          px: compact ? 0.9 : 1.1,
+          gap: 0.6,
+          fontSize: '0.75rem',
+          textTransform: 'none',
+          color: INK_DIM,
+        },
+      }}
+    >
+      {(
+        [
+          ['replay', 'Replay', 'Step through one search', <ReplayIcon key="i" fontSize="small" />],
+          ['compare', 'Compare', 'Two searches side by side', <CompareIcon key="i" fontSize="small" />],
+          ['play', 'Play', 'Make LATS’s judgements yourself', <PlayIcon key="i" fontSize="small" />],
+        ] as const
+      ).map(([value, label, title, icon]) => (
+        <ToggleButton key={value} value={value} aria-label={label}>
+          <Tooltip title={title} arrow>
+            <Stack direction="row" spacing={0.6} sx={{ alignItems: 'center' }}>
+              {icon}
+              {!compact && <span>{label}</span>}
+            </Stack>
+          </Tooltip>
+        </ToggleButton>
+      ))}
+    </ToggleButtonGroup>
+  )
+
+  // A trace recorded before the scoring fix says so before anything else.
+  const notes = trace && mode === 'replay' && !dismissed.has(trace.name) ? caveats(trace) : []
 
   return (
     <Box
@@ -562,16 +669,19 @@ export default function App() {
           </Box>
           <Box sx={{ flex: 1 }} />
           {/* Wide enough for the picker: it belongs beside the title. On a
-              phone it gets a row of its own, below. */}
-          {!tabbed && <Box ref={pickerRef}>{picker}</Box>}
-          <Tooltip title={mode === 'dark' ? 'Switch to light' : 'Switch to dark'} arrow>
+              phone it gets a row of its own, below, and so do the modes. The
+              picker chooses the replayed trace, so it is shown only there:
+              each comparison pane has its own. */}
+          {!tabbed && modes}
+          {!tabbed && mode === 'replay' && <Box ref={pickerRef}>{picker}</Box>}
+          <Tooltip title={colorMode === 'dark' ? 'Switch to light' : 'Switch to dark'} arrow>
             <IconButton
               size="small"
               onClick={toggle}
-              aria-label={mode === 'dark' ? 'switch to light mode' : 'switch to dark mode'}
+              aria-label={colorMode === 'dark' ? 'switch to light mode' : 'switch to dark mode'}
               sx={{ color: INK_FAINT }}
             >
-              {mode === 'dark' ? (
+              {colorMode === 'dark' ? (
                 <LightModeIcon fontSize="small" />
               ) : (
                 <DarkModeIcon fontSize="small" />
@@ -582,7 +692,7 @@ export default function App() {
             <span>
               <IconButton
                 size="small"
-                disabled={!trace}
+                disabled={!trace || mode !== 'replay'}
                 onClick={() => setTour((n) => n + 1)}
                 aria-label="show the tour"
                 sx={{ color: INK_FAINT }}
@@ -594,9 +704,14 @@ export default function App() {
         </Toolbar>
 
         {tabbed && (
-          <Box ref={pickerRef} sx={{ px: 1.5, pb: 1 }}>
-            {picker}
-          </Box>
+          <Stack direction="row" spacing={1} sx={{ px: 1.5, pb: 1, alignItems: 'center' }}>
+            {modes}
+            {mode === 'replay' && (
+              <Box ref={pickerRef} sx={{ flex: 1, minWidth: 0 }}>
+                {picker}
+              </Box>
+            )}
+          </Stack>
         )}
       </AppBar>
 
@@ -613,12 +728,44 @@ export default function App() {
         </Alert>
       )}
 
+      {notes.length > 0 && trace && (
+        <Alert
+          severity="info"
+          variant="outlined"
+          onClose={() => setDismissed((prev) => new Set(prev).add(trace.name))}
+          sx={{ borderRadius: 0, borderLeft: 0, borderRight: 0, py: 0.25, fontSize: '0.8rem' }}
+        >
+          {notes.map((n, i) => (
+            <div key={i}>{n}</div>
+          ))}
+        </Alert>
+      )}
+
       {/* Everything below the bar fits the window at any size a phone comes
           in. Smaller than that - a tiny browser window, a handset from before
           they got tall, turned sideways - it scrolls rather than folding the
-          transport under the tree. */}
-      <Box sx={{ flex: 1, minHeight: 0, p: gap, overflowY: compact ? 'auto' : 'hidden' }}>
-        {loading && !trace ? (
+          transport under the tree. A comparison or a game stacked into one
+          column is taller than any window, and scrolls too. */}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          p: gap,
+          overflowY: compact || (mode !== 'replay' && (stacked || tabbed)) ? 'auto' : 'hidden',
+        }}
+      >
+        {mode === 'play' ? (
+          <PlayView compact={compact} stacked={stacked || tabbed} onCompare={compareSession} />
+        ) : mode === 'compare' && sources.length > 0 ? (
+          <Compare
+            key={pair.join('|')}
+            sources={sources}
+            uploaded={uploaded}
+            initial={pair}
+            compact={compact}
+            stacked={stacked || tabbed}
+          />
+        ) : loading && !trace ? (
           <Centered>
             <CircularProgress size={22} />
             <Typography variant="body2" sx={{ color: INK_DIM }}>

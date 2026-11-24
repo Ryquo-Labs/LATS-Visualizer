@@ -10,6 +10,13 @@ globally fatal. The policy in this file scores a move by how tidy its result
 looks: whole numbers, small magnitudes, factors of 24. That is a plausible
 heuristic and it is frequently wrong, which is exactly the situation the value
 function plus backpropagation is there to repair.
+
+This is also the environment where grading after the reply changes least. The
+arithmetic is predictable, so the state a move reaches is already known when
+the move is proposed, and an observation-conditioned grade differs from the
+policy's prior only at the end - where the environment says whether the last
+number is 24. The programming and question-answering tasks are where the reply
+carries news.
 """
 
 from __future__ import annotations
@@ -21,7 +28,7 @@ from fractions import Fraction
 from itertools import combinations
 from typing import Any
 
-from ..types import Action, Observation, Proposal
+from ..types import Action, Grade, Observation, Proposal
 from .base import Task
 
 TARGET = 24
@@ -106,6 +113,11 @@ def legal_moves(numbers: list[Fraction]) -> list[dict]:
                     }
                 )
     return moves
+
+
+def _blocked(reflections: list[str]) -> set[str]:
+    """Every step a reflection has named, read off its machine-readable tail."""
+    return {line.strip() for r in reflections for line in r.split("|")}
 
 
 def tidiness(result: Fraction, remaining: list[Fraction]) -> float:
@@ -224,7 +236,7 @@ class Game24Task(Task):
 
         # Anything a reflection has already ruled out is pushed down, which is
         # how a verbal note becomes a change in behaviour rather than a comment.
-        blocked = {line.strip() for r in reflections for line in r.split("|")}
+        blocked = _blocked(reflections)
         scores = [tidiness(m["result"], m["remaining"]) for m in moves]
         scores = [
             s * (0.25 if m["expr"] in blocked else 1.0) for s, m in zip(scores, moves)
@@ -247,7 +259,7 @@ class Game24Task(Task):
                             "remaining": [str(v) for v in move["remaining"]],
                         },
                     ),
-                    self_eval=round(scores[idx], 3),
+                    prior=round(scores[idx], 3),
                     rationale=(
                         f"leaves {', '.join(_fmt(v) for v in move['remaining'])}"
                     ),
@@ -256,6 +268,44 @@ class Game24Task(Task):
                 )
             )
         return out
+
+    def mock_evaluate(
+        self,
+        data: dict,
+        observation: Observation,
+        action: Action,
+        prior: float,
+        reflections: list[str],
+    ) -> Grade:
+        """Grade the numbers that are left, now the step has been taken.
+
+        At the end of a trajectory the environment has said whether the last
+        number is 24, and the grade is that verdict - the one thing a grader
+        that has read the reply knows and a grader working from the proposal
+        does not. Before the end there is no verdict to read, only the numbers
+        left on the board, and they are graded with the same shallow
+        :func:`tidiness` the policy samples with - including the discount for a
+        move a reflection has already ruled out, because the notes are in the
+        value function's context too. Shallow on purpose: it looks one step
+        ahead and no further, which is what leaves the search work to do.
+        """
+        left = [Fraction(s) for s in data["numbers"]]
+        if observation.terminal:
+            final = (observation.detail or {}).get("final", _fmt(left[0]))
+            if left[0] == TARGET:
+                return Grade(0.98, f"The environment confirms {final} is {TARGET}.")
+            return Grade(
+                0.02, f"The environment says the final value {final} is not {TARGET}."
+            )
+
+        step = data["steps"][-1]
+        result = Fraction(step.split("=")[-1].strip())
+        score = tidiness(result, left)
+        why = f"Left with {', '.join(_fmt(v) for v in left)}"
+        if step in _blocked(reflections):
+            score *= 0.25
+            why += "; a note in context says not to open with this step"
+        return Grade(round(score, 3), why + ".")
 
     # -- online policy ------------------------------------------------------
 
@@ -266,14 +316,18 @@ class Game24Task(Task):
 
     def action_schema(self) -> str:
         return (
-            'Return JSON and nothing else: {"candidates": [{"expr": "a op b = '
-            'c", "self_eval": 0.0-1.0}]}. '
-            "Each candidate is ONE step that combines exactly two of the "
-            'numbers still left, written plainly: "8 / 3 = 8/3". Not a whole '
-            'solution like "8/(3-8/3)", and not a bracketed fragment like '
-            '"(8/3)". Fractions are allowed. self_eval is your own estimate, '
-            "from 0 to 1, that this step leads to 24."
+            'Return JSON and nothing else: {"expr": "a op b = c", "prior": '
+            "0.0-1.0}. The step combines exactly two of the numbers still "
+            'left, written plainly: "8 / 3 = 8/3". Not a whole solution like '
+            '"8/(3-8/3)", and not a bracketed fragment like "(8/3)". Fractions '
+            "are allowed. prior is your own estimate, from 0 to 1, that this "
+            "step leads to 24."
         )
+
+    def signature(self, action: Action) -> str:
+        # The state, not the spelling: two moves agree when they leave the
+        # same numbers behind - the same rule mock_propose samples under.
+        return ",".join(action.payload["remaining"])
 
     def parse_action(self, obj: dict, data: dict) -> Action:
         """Match the model's step against the moves actually available.

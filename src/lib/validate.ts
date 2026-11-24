@@ -40,6 +40,9 @@ const VALID_OPS = new Set<Op>([
   'result',
 ])
 
+/** The methods `lib/methods.ts` can describe; anything else replays as LATS. */
+const KNOWN_METHODS = new Set(['lats', 'react', 'reflexion', 'tot'])
+
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }
@@ -186,6 +189,11 @@ export function validateTrace(raw: unknown): ParseResult {
   if (unseen.length) {
     warnings.push(
       `${unseen.length} node(s) declare a created_at past the end of the trace and will never appear.`,
+    )
+  }
+  if (raw.method !== undefined && !KNOWN_METHODS.has(raw.method as string)) {
+    warnings.push(
+      `This trace says it was written by method ${JSON.stringify(raw.method)}, which the viewer does not know; it is shown as LATS.`,
     )
   }
 

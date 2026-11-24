@@ -11,6 +11,10 @@
  * the transport gets a row to itself at a size a thumb can hit. Turned
  * sideways, where rows are the scarce thing, the controls go back onto one
  * line. Everything the desktop layout can do, every one of them can do.
+ *
+ * Under a baseline the strip still shows all six, and strikes through the ones
+ * the method does not have: ReAct lights one box, Reflexion two, Tree of
+ * Thoughts three. Which operations are missing is the comparison.
  */
 
 import Box from '@mui/material/Box'
@@ -32,6 +36,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import type { Trace } from '../types'
 import { OPS } from '../types'
 import { iterationStarts } from '../lib/layout'
+import { methodOf } from '../lib/methods'
 import {
   INK,
   INK_DIM,
@@ -87,6 +92,8 @@ export default function Timeline({
         ? ''
         : String(m.iteration),
   }))
+
+  const method = methodOf(trace)
 
   // Which of the six have already happened in this iteration, so the strip
   // reads as progress through a cycle rather than a static legend.
@@ -200,20 +207,27 @@ export default function Timeline({
           const isNow = step.op === op
           const done = doneThisIteration.has(op)
           const color = OP_COLOR[op]
+          const absent = !method.ops.has(op)
           return (
-            <Tooltip key={op} title={op} arrow>
+            <Tooltip
+              key={op}
+              title={absent ? `${method.name} has no ${op}` : op}
+              arrow
+            >
               <Box
                 sx={{
                   px: 0.5,
                   py: 0.45,
                   borderRadius: 0.75,
                   textAlign: 'center',
-                  border: `1px solid ${isNow ? color : STROKE}`,
+                  border: `1px ${absent ? 'dashed' : 'solid'} ${isNow ? color : STROKE}`,
                   bgcolor: isNow
                     ? alpha(color, 0.13)
                     : done
                       ? alpha(color, 0.055)
-                      : SURFACE_2,
+                      : absent
+                        ? 'transparent'
+                        : SURFACE_2,
                   boxShadow: isNow ? `inset 0 0 0 1px ${alpha(color, 0.35)}` : 'none',
                   transition: 'background-color 140ms ease, border-color 140ms ease',
                   minWidth: 0,
@@ -228,6 +242,8 @@ export default function Timeline({
                     fontWeight: isNow ? 700 : 500,
                     letterSpacing: '0.03em',
                     color: isNow ? color : done ? color : INK_FAINT,
+                    textDecoration: absent ? 'line-through' : 'none',
+                    opacity: absent ? 0.7 : 1,
                   }}
                 >
                   {op}

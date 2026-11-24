@@ -1,9 +1,10 @@
 {
   "schema": "lats-trace/1",
   "name": "mock_merge-intervals",
+  "method": "lats",
   "generated_by": {
     "package": "run_lats",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "task": {
     "id": "merge-intervals",
@@ -31,31 +32,34 @@
     "reflect": true,
     "reflect_threshold": 1.0,
     "solved_at": 1.0,
-    "seed": 7
+    "seed": 7,
+    "evaluation": "after"
   },
   "policy": {
     "kind": "mock",
     "name": "MockLLM",
     "model": null,
     "seed": 7,
-    "calls": 2,
-    "tokens": 688,
-    "tokens_are_estimated": true
+    "calls": 9,
+    "tokens": 2579,
+    "tokens_are_estimated": true,
+    "sampling": "independent"
   },
   "result": {
     "solved": true,
     "best_reward": 1.0,
-    "best_node": 3,
+    "best_node": 5,
     "best_path": [
       0,
       2,
-      3
+      5
     ],
-    "nodes": 5,
-    "iterations_run": 2,
+    "nodes": 7,
+    "iterations_run": 3,
     "stopped_because": "a trajectory reached the target reward",
     "reflections": [
-      "merge([[3,5],[1,2]]) returned [[3, 5]], expected [[1,2],[3,5]]. 2 of 5 cases fail. Every failing case receives its intervals out of order and every passing case receives them sorted, so the approach is assuming an ordering the input does not guarantee. Sort first."
+      "merge([[1,4],[4,5]]) returned [[1, 4], [4, 5]], expected [[1,5]]. 1 of 5 cases fail.",
+      "merge([[3,5],[1,2]]) returned [[3, 5], [1, 2]], expected [[1,2],[3,5]]. 2 of 5 cases fail. Every failing case receives its intervals out of order and every passing case receives them sorted, so the approach is assuming an ordering the input does not guarantee. Sort first."
     ]
   },
   "nodes": [
@@ -168,6 +172,102 @@
     },
     {
       "id": 3,
+      "parent": 1,
+      "depth": 2,
+      "label": "scan all, not just last",
+      "action": "Compare each interval against every interval already emitted, not only the most recent one.",
+      "observation": "3 of 5 tests pass.",
+      "detail": {
+        "code": "def merge(iv):\n    out = []\n    for a, b in iv:\n        for cur in out:\n            if a <= cur[1] and b >= cur[0]:\n                cur[0] = min(cur[0], a)\n                cur[1] = max(cur[1], b)\n                break\n        else:\n            out.append([a, b])\n    return out",
+        "results": [
+          {
+            "call": "merge([[1,3],[2,6]])",
+            "expect": "[[1,6]]",
+            "got": "[[1, 6]]",
+            "passed": true
+          },
+          {
+            "call": "merge([[1,4],[5,6]])",
+            "expect": "[[1,4],[5,6]]",
+            "got": "[[1, 4], [5, 6]]",
+            "passed": true
+          },
+          {
+            "call": "merge([[1,4],[4,5]])",
+            "expect": "[[1,5]]",
+            "got": "[[1, 5]]",
+            "passed": true
+          },
+          {
+            "call": "merge([[3,5],[1,2]])",
+            "expect": "[[1,2],[3,5]]",
+            "got": "[[3, 5], [1, 2]]",
+            "passed": false
+          },
+          {
+            "call": "merge([[8,10],[1,3],[2,6]])",
+            "expect": "[[1,6],[8,10]]",
+            "got": "[[8, 10], [1, 6]]",
+            "passed": false
+          }
+        ],
+        "passed": 3,
+        "total": 5,
+        "error": null
+      },
+      "terminal": true,
+      "created_at": 8
+    },
+    {
+      "id": 4,
+      "parent": 1,
+      "depth": 2,
+      "label": "guard the lower bound",
+      "action": "Only merge when the new start also falls at or after the previous start.",
+      "observation": "3 of 5 tests pass.",
+      "detail": {
+        "code": "def merge(iv):\n    out = []\n    for a, b in iv:\n        if out and out[-1][0] <= a <= out[-1][1]:\n            out[-1][1] = max(out[-1][1], b)\n        else:\n            out.append([a, b])\n    return out",
+        "results": [
+          {
+            "call": "merge([[1,3],[2,6]])",
+            "expect": "[[1,6]]",
+            "got": "[[1, 6]]",
+            "passed": true
+          },
+          {
+            "call": "merge([[1,4],[5,6]])",
+            "expect": "[[1,4],[5,6]]",
+            "got": "[[1, 4], [5, 6]]",
+            "passed": true
+          },
+          {
+            "call": "merge([[1,4],[4,5]])",
+            "expect": "[[1,5]]",
+            "got": "[[1, 5]]",
+            "passed": true
+          },
+          {
+            "call": "merge([[3,5],[1,2]])",
+            "expect": "[[1,2],[3,5]]",
+            "got": "[[3, 5], [1, 2]]",
+            "passed": false
+          },
+          {
+            "call": "merge([[8,10],[1,3],[2,6]])",
+            "expect": "[[1,6],[8,10]]",
+            "got": "[[8, 10], [1, 6]]",
+            "passed": false
+          }
+        ],
+        "passed": 3,
+        "total": 5,
+        "error": null
+      },
+      "terminal": true,
+      "created_at": 8
+    },
+    {
+      "id": 5,
       "parent": 2,
       "depth": 2,
       "label": "merge on touch too",
@@ -212,10 +312,10 @@
         "error": null
       },
       "terminal": true,
-      "created_at": 8
+      "created_at": 14
     },
     {
-      "id": 4,
+      "id": 6,
       "parent": 2,
       "depth": 2,
       "label": "widen both ends",
@@ -260,7 +360,7 @@
         "error": null
       },
       "terminal": true,
-      "created_at": 8
+      "created_at": 14
     }
   ],
   "steps": [
@@ -297,7 +397,8 @@
           "reflect": true,
           "reflect_threshold": 1.0,
           "solved_at": 1.0,
-          "seed": 7
+          "seed": 7,
+          "evaluation": "after"
         }
       },
       "focus": [
@@ -314,6 +415,7 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         }
@@ -344,6 +446,7 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         }
@@ -354,7 +457,7 @@
       "op": "expansion",
       "iteration": 1,
       "title": "Expansion",
-      "summary": "3 samples from the policy collapsed to 2 distinct states, each executed in the environment.",
+      "summary": "3 independent samples from the policy reached 2 distinct states, each executed in the environment.",
       "detail": {
         "parent": 0,
         "children": [
@@ -404,9 +507,7 @@
             "terminal": false,
             "reward": 0.6,
             "samples": 2,
-            "lm": 0.7,
-            "sc": 0.6667,
-            "value": 0.6933,
+            "prior": 0.7,
             "rejected": null
           },
           {
@@ -455,9 +556,7 @@
             "terminal": false,
             "reward": 0.8,
             "samples": 1,
-            "lm": 0.62,
-            "sc": 0.3333,
-            "value": 0.5627,
+            "prior": 0.62,
             "rejected": null
           }
         ],
@@ -471,7 +570,7 @@
       "path": [
         0
       ],
-      "tokens": 265,
+      "tokens": 273,
       "state": {
         "0": {
           "visits": 1,
@@ -479,24 +578,27 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 1,
-          "value": 0.6933,
+          "value": null,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": null,
           "sc": 0.6667,
+          "prior": 0.7,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.5627,
+          "value": null,
           "reward": 0.8,
-          "lm": 0.62,
+          "lm": null,
           "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": false
         }
@@ -507,25 +609,30 @@
       "op": "evaluation",
       "iteration": 1,
       "title": "Evaluation",
-      "summary": "V(s) = 0.8\u00b7LM(s) + 0.2\u00b7SC(s), scored after the environment replied.",
+      "summary": "V(s) = 0.8\u00b7LM(s) + 0.2\u00b7SC(s). LM(s) is graded now, from each state with the environment's reply in it.",
       "detail": {
         "lam": 0.8,
+        "timing": "after",
         "scores": [
           {
             "id": 1,
             "label": "one-pass merge",
-            "lm": 0.7,
+            "prior": 0.7,
+            "lm": 0.63,
             "sc": 0.6667,
-            "value": 0.6933,
-            "reward": 0.6
+            "value": 0.6373,
+            "reward": 0.6,
+            "why": "3 of 5 tests pass; merge([[3,5],[1,2]]) returned [[3, 5]]."
           },
           {
             "id": 2,
             "label": "sort, then sweep",
-            "lm": 0.62,
+            "prior": 0.62,
+            "lm": 0.746,
             "sc": 0.3333,
-            "value": 0.5627,
-            "reward": 0.8
+            "value": 0.6635,
+            "reward": 0.8,
+            "why": "4 of 5 tests pass; merge([[1,4],[4,5]]) returned [[1, 4], [4, 5]]."
           }
         ]
       },
@@ -536,7 +643,7 @@
       "path": [
         0
       ],
-      "tokens": 265,
+      "tokens": 676,
       "state": {
         "0": {
           "visits": 1,
@@ -544,24 +651,27 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 1,
-          "value": 0.6933,
+          "value": 0.6373,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.5627,
+          "value": 0.6635,
           "reward": 0.8,
-          "lm": 0.62,
+          "lm": 0.746,
           "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": false
         }
@@ -575,20 +685,20 @@
       "summary": "Every node in this task is already a complete solution, so there is nothing to roll out - the paper skips simulation in the programming setting for the same reason.",
       "detail": {
         "rollout": [
-          1
+          2
         ],
-        "terminal": 1,
+        "terminal": 2,
         "truncated": false,
         "skipped": true,
-        "observation": "3 of 5 tests pass."
+        "observation": "4 of 5 tests pass."
       },
       "focus": [
-        1
+        2
       ],
       "path": [
         0
       ],
-      "tokens": 265,
+      "tokens": 676,
       "state": {
         "0": {
           "visits": 1,
@@ -596,24 +706,27 @@
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 1,
-          "value": 0.6933,
+          "value": 0.6373,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
           "terminal": false,
           "reflected": false
         },
         "2": {
           "visits": 1,
-          "value": 0.5627,
+          "value": 0.6635,
           "reward": 0.8,
-          "lm": 0.62,
+          "lm": 0.746,
           "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": false
         }
@@ -624,20 +737,20 @@
       "op": "backpropagation",
       "iteration": 1,
       "title": "Backpropagation",
-      "summary": "Reward 0.6 flows from node 1 up to the root, revising 2 values.",
+      "summary": "Reward 0.8 flows from node 2 up to the root, revising 2 values.",
       "detail": {
-        "reward": 0.6,
-        "leaf": 1,
+        "reward": 0.8,
+        "leaf": 2,
         "updates": [
           {
-            "id": 1,
+            "id": 2,
             "before": {
               "visits": 1,
-              "value": 0.6933
+              "value": 0.6635
             },
             "after": {
               "visits": 2,
-              "value": 0.6467
+              "value": 0.7317
             }
           },
           {
@@ -648,45 +761,48 @@
             },
             "after": {
               "visits": 2,
-              "value": 0.3
+              "value": 0.4
             }
           }
         ]
       },
       "focus": [
-        1,
+        2,
         0
       ],
       "path": [
         0,
-        1
+        2
       ],
-      "tokens": 265,
+      "tokens": 676,
       "state": {
         "0": {
           "visits": 2,
-          "value": 0.3,
+          "value": 0.4,
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
-          "visits": 2,
-          "value": 0.6467,
+          "visits": 1,
+          "value": 0.6373,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
           "terminal": false,
           "reflected": false
         },
         "2": {
-          "visits": 1,
-          "value": 0.5627,
+          "visits": 2,
+          "value": 0.7317,
           "reward": 0.8,
-          "lm": 0.62,
+          "lm": 0.746,
           "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": false
         }
@@ -699,50 +815,53 @@
       "title": "Reflection",
       "summary": "The trajectory failed, so the agent writes down why. The note joins the context for every later expansion.",
       "detail": {
-        "node": 1,
-        "text": "merge([[3,5],[1,2]]) returned [[3, 5]], expected [[1,2],[3,5]]. 2 of 5 cases fail. Every failing case receives its intervals out of order and every passing case receives them sorted, so the approach is assuming an ordering the input does not guarantee. Sort first.",
+        "node": 2,
+        "text": "merge([[1,4],[4,5]]) returned [[1, 4], [4, 5]], expected [[1,5]]. 1 of 5 cases fail.",
         "trajectory": [
           0,
-          1
+          2
         ],
-        "reward": 0.6,
+        "reward": 0.8,
         "total_notes": 1
       },
       "focus": [
-        1
+        2
       ],
       "path": [
         0,
-        1
+        2
       ],
-      "tokens": 265,
+      "tokens": 676,
       "state": {
         "0": {
           "visits": 2,
-          "value": 0.3,
+          "value": 0.4,
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
-          "visits": 2,
-          "value": 0.6467,
-          "reward": 0.6,
-          "lm": 0.7,
-          "sc": 0.6667,
-          "terminal": false,
-          "reflected": true
-        },
-        "2": {
           "visits": 1,
-          "value": 0.5627,
-          "reward": 0.8,
-          "lm": 0.62,
-          "sc": 0.3333,
+          "value": 0.6373,
+          "reward": 0.6,
+          "lm": 0.63,
+          "sc": 0.6667,
+          "prior": 0.7,
           "terminal": false,
           "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
+          "terminal": false,
+          "reflected": true
         }
       }
     },
@@ -751,7 +870,7 @@
       "op": "selection",
       "iteration": 2,
       "title": "Selection",
-      "summary": "sort, then sweep wins with UCT 1.3952 = 0.5627 exploit + 0.8326 explore.",
+      "summary": "one-pass merge wins with UCT 1.4699 = 0.6373 exploit + 0.8326 explore.",
       "detail": {
         "levels": [
           {
@@ -762,20 +881,633 @@
               {
                 "id": 1,
                 "label": "one-pass merge",
-                "visits": 2,
-                "exploit": 0.6467,
-                "explore": 0.5887,
-                "uct": 1.2354,
+                "visits": 1,
+                "exploit": 0.6373,
+                "explore": 0.8326,
+                "uct": 1.4699,
                 "available": true,
+                "chosen": true
+              },
+              {
+                "id": 2,
+                "label": "sort, then sweep",
+                "visits": 2,
+                "exploit": 0.7317,
+                "explore": 0.5887,
+                "uct": 1.3204,
+                "available": true,
+                "chosen": false
+              }
+            ]
+          }
+        ],
+        "exhausted": false,
+        "target": 1
+      },
+      "focus": [
+        1
+      ],
+      "path": [
+        0,
+        1
+      ],
+      "tokens": 676,
+      "state": {
+        "0": {
+          "visits": 2,
+          "value": 0.4,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.6373,
+          "reward": 0.6,
+          "lm": 0.63,
+          "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
+          "terminal": false,
+          "reflected": true
+        }
+      }
+    },
+    {
+      "index": 8,
+      "op": "expansion",
+      "iteration": 2,
+      "title": "Expansion",
+      "summary": "3 independent samples from the policy reached 2 distinct states, each executed in the environment.",
+      "detail": {
+        "parent": 1,
+        "children": [
+          {
+            "id": 3,
+            "label": "scan all, not just last",
+            "text": "Compare each interval against every interval already emitted, not only the most recent one.",
+            "observation": "3 of 5 tests pass.",
+            "detail": {
+              "code": "def merge(iv):\n    out = []\n    for a, b in iv:\n        for cur in out:\n            if a <= cur[1] and b >= cur[0]:\n                cur[0] = min(cur[0], a)\n                cur[1] = max(cur[1], b)\n                break\n        else:\n            out.append([a, b])\n    return out",
+              "results": [
+                {
+                  "call": "merge([[1,3],[2,6]])",
+                  "expect": "[[1,6]]",
+                  "got": "[[1, 6]]",
+                  "passed": true
+                },
+                {
+                  "call": "merge([[1,4],[5,6]])",
+                  "expect": "[[1,4],[5,6]]",
+                  "got": "[[1, 4], [5, 6]]",
+                  "passed": true
+                },
+                {
+                  "call": "merge([[1,4],[4,5]])",
+                  "expect": "[[1,5]]",
+                  "got": "[[1, 5]]",
+                  "passed": true
+                },
+                {
+                  "call": "merge([[3,5],[1,2]])",
+                  "expect": "[[1,2],[3,5]]",
+                  "got": "[[3, 5], [1, 2]]",
+                  "passed": false
+                },
+                {
+                  "call": "merge([[8,10],[1,3],[2,6]])",
+                  "expect": "[[1,6],[8,10]]",
+                  "got": "[[8, 10], [1, 6]]",
+                  "passed": false
+                }
+              ],
+              "passed": 3,
+              "total": 5,
+              "error": null
+            },
+            "terminal": true,
+            "reward": 0.6,
+            "samples": 2,
+            "prior": 0.78,
+            "rejected": null
+          },
+          {
+            "id": 4,
+            "label": "guard the lower bound",
+            "text": "Only merge when the new start also falls at or after the previous start.",
+            "observation": "3 of 5 tests pass.",
+            "detail": {
+              "code": "def merge(iv):\n    out = []\n    for a, b in iv:\n        if out and out[-1][0] <= a <= out[-1][1]:\n            out[-1][1] = max(out[-1][1], b)\n        else:\n            out.append([a, b])\n    return out",
+              "results": [
+                {
+                  "call": "merge([[1,3],[2,6]])",
+                  "expect": "[[1,6]]",
+                  "got": "[[1, 6]]",
+                  "passed": true
+                },
+                {
+                  "call": "merge([[1,4],[5,6]])",
+                  "expect": "[[1,4],[5,6]]",
+                  "got": "[[1, 4], [5, 6]]",
+                  "passed": true
+                },
+                {
+                  "call": "merge([[1,4],[4,5]])",
+                  "expect": "[[1,5]]",
+                  "got": "[[1, 5]]",
+                  "passed": true
+                },
+                {
+                  "call": "merge([[3,5],[1,2]])",
+                  "expect": "[[1,2],[3,5]]",
+                  "got": "[[3, 5], [1, 2]]",
+                  "passed": false
+                },
+                {
+                  "call": "merge([[8,10],[1,3],[2,6]])",
+                  "expect": "[[1,6],[8,10]]",
+                  "got": "[[8, 10], [1, 6]]",
+                  "passed": false
+                }
+              ],
+              "passed": 3,
+              "total": 5,
+              "error": null
+            },
+            "terminal": true,
+            "reward": 0.6,
+            "samples": 1,
+            "prior": 0.66,
+            "rejected": null
+          }
+        ],
+        "n": 3,
+        "reflections_in_context": [
+          "merge([[1,4],[4,5]]) returned [[1, 4], [4, 5]], expected [[1,5]]. 1 of 5 cases fail."
+        ]
+      },
+      "focus": [
+        3,
+        4
+      ],
+      "path": [
+        0,
+        1
+      ],
+      "tokens": 1078,
+      "state": {
+        "0": {
+          "visits": 2,
+          "value": 0.4,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.6373,
+          "reward": 0.6,
+          "lm": 0.63,
+          "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
+          "terminal": false,
+          "reflected": true
+        },
+        "3": {
+          "visits": 1,
+          "value": null,
+          "reward": 0.6,
+          "lm": null,
+          "sc": 0.6667,
+          "prior": 0.78,
+          "terminal": true,
+          "reflected": false
+        },
+        "4": {
+          "visits": 1,
+          "value": null,
+          "reward": 0.6,
+          "lm": null,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 9,
+      "op": "evaluation",
+      "iteration": 2,
+      "title": "Evaluation",
+      "summary": "V(s) = 0.8\u00b7LM(s) + 0.2\u00b7SC(s). LM(s) is graded now, from each state with the environment's reply in it.",
+      "detail": {
+        "lam": 0.8,
+        "timing": "after",
+        "scores": [
+          {
+            "id": 3,
+            "label": "scan all, not just last",
+            "prior": 0.78,
+            "lm": 0.654,
+            "sc": 0.6667,
+            "value": 0.6565,
+            "reward": 0.6,
+            "why": "3 of 5 tests pass; merge([[3,5],[1,2]]) returned [[3, 5], [1, 2]]."
+          },
+          {
+            "id": 4,
+            "label": "guard the lower bound",
+            "prior": 0.66,
+            "lm": 0.618,
+            "sc": 0.3333,
+            "value": 0.5611,
+            "reward": 0.6,
+            "why": "3 of 5 tests pass; merge([[3,5],[1,2]]) returned [[3, 5], [1, 2]]."
+          }
+        ]
+      },
+      "focus": [
+        3,
+        4
+      ],
+      "path": [
+        0,
+        1
+      ],
+      "tokens": 1571,
+      "state": {
+        "0": {
+          "visits": 2,
+          "value": 0.4,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.6373,
+          "reward": 0.6,
+          "lm": 0.63,
+          "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
+          "terminal": false,
+          "reflected": true
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6565,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
+          "terminal": true,
+          "reflected": false
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 10,
+      "op": "simulation",
+      "iteration": 2,
+      "title": "Simulation skipped",
+      "summary": "Every node in this task is already a complete solution, so there is nothing to roll out - the paper skips simulation in the programming setting for the same reason.",
+      "detail": {
+        "rollout": [
+          3
+        ],
+        "terminal": 3,
+        "truncated": false,
+        "skipped": true,
+        "observation": "3 of 5 tests pass."
+      },
+      "focus": [
+        3
+      ],
+      "path": [
+        0,
+        1
+      ],
+      "tokens": 1571,
+      "state": {
+        "0": {
+          "visits": 2,
+          "value": 0.4,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.6373,
+          "reward": 0.6,
+          "lm": 0.63,
+          "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
+          "terminal": false,
+          "reflected": true
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6565,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
+          "terminal": true,
+          "reflected": false
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 11,
+      "op": "backpropagation",
+      "iteration": 2,
+      "title": "Backpropagation",
+      "summary": "Reward 0.6 flows from node 3 up to the root, revising 3 values.",
+      "detail": {
+        "reward": 0.6,
+        "leaf": 3,
+        "updates": [
+          {
+            "id": 3,
+            "before": {
+              "visits": 1,
+              "value": 0.6565
+            },
+            "after": {
+              "visits": 2,
+              "value": 0.6283
+            }
+          },
+          {
+            "id": 1,
+            "before": {
+              "visits": 1,
+              "value": 0.6373
+            },
+            "after": {
+              "visits": 2,
+              "value": 0.6187
+            }
+          },
+          {
+            "id": 0,
+            "before": {
+              "visits": 2,
+              "value": 0.4
+            },
+            "after": {
+              "visits": 3,
+              "value": 0.4667
+            }
+          }
+        ]
+      },
+      "focus": [
+        3,
+        1,
+        0
+      ],
+      "path": [
+        0,
+        1,
+        3
+      ],
+      "tokens": 1571,
+      "state": {
+        "0": {
+          "visits": 3,
+          "value": 0.4667,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 2,
+          "value": 0.6187,
+          "reward": 0.6,
+          "lm": 0.63,
+          "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
+          "terminal": false,
+          "reflected": true
+        },
+        "3": {
+          "visits": 2,
+          "value": 0.6283,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
+          "terminal": true,
+          "reflected": false
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 12,
+      "op": "reflection",
+      "iteration": 2,
+      "title": "Reflection",
+      "summary": "The trajectory failed, so the agent writes down why. The note joins the context for every later expansion.",
+      "detail": {
+        "node": 3,
+        "text": "merge([[3,5],[1,2]]) returned [[3, 5], [1, 2]], expected [[1,2],[3,5]]. 2 of 5 cases fail. Every failing case receives its intervals out of order and every passing case receives them sorted, so the approach is assuming an ordering the input does not guarantee. Sort first.",
+        "trajectory": [
+          0,
+          1,
+          3
+        ],
+        "reward": 0.6,
+        "total_notes": 2
+      },
+      "focus": [
+        3
+      ],
+      "path": [
+        0,
+        1,
+        3
+      ],
+      "tokens": 1571,
+      "state": {
+        "0": {
+          "visits": 3,
+          "value": 0.4667,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 2,
+          "value": 0.6187,
+          "reward": 0.6,
+          "lm": 0.63,
+          "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
+          "terminal": false,
+          "reflected": true
+        },
+        "3": {
+          "visits": 2,
+          "value": 0.6283,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
+          "terminal": true,
+          "reflected": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 13,
+      "op": "selection",
+      "iteration": 3,
+      "title": "Selection",
+      "summary": "sort, then sweep wins with UCT 1.4729 = 0.7317 exploit + 0.7412 explore.",
+      "detail": {
+        "levels": [
+          {
+            "parent": 0,
+            "parent_visits": 3,
+            "w": 1.0,
+            "children": [
+              {
+                "id": 1,
+                "label": "one-pass merge",
+                "visits": 2,
+                "exploit": 0.6187,
+                "explore": 0.7412,
+                "uct": 1.3598,
+                "available": false,
                 "chosen": false
               },
               {
                 "id": 2,
                 "label": "sort, then sweep",
-                "visits": 1,
-                "exploit": 0.5627,
-                "explore": 0.8326,
-                "uct": 1.3952,
+                "visits": 2,
+                "exploit": 0.7317,
+                "explore": 0.7412,
+                "uct": 1.4729,
                 "available": true,
                 "chosen": true
               }
@@ -792,48 +1524,71 @@
         0,
         2
       ],
-      "tokens": 265,
+      "tokens": 1571,
       "state": {
         "0": {
-          "visits": 2,
-          "value": 0.3,
+          "visits": 3,
+          "value": 0.4667,
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.6467,
+          "value": 0.6187,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": true
         },
-        "2": {
+        "3": {
+          "visits": 2,
+          "value": 0.6283,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
+          "terminal": true,
+          "reflected": true
+        },
+        "4": {
           "visits": 1,
-          "value": 0.5627,
-          "reward": 0.8,
-          "lm": 0.62,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
           "sc": 0.3333,
-          "terminal": false,
+          "prior": 0.66,
+          "terminal": true,
           "reflected": false
         }
       }
     },
     {
-      "index": 8,
+      "index": 14,
       "op": "expansion",
-      "iteration": 2,
+      "iteration": 3,
       "title": "Expansion",
-      "summary": "3 samples from the policy collapsed to 2 distinct states, each executed in the environment.",
+      "summary": "3 independent samples from the policy reached 2 distinct states, each executed in the environment.",
       "detail": {
         "parent": 2,
         "children": [
           {
-            "id": 3,
+            "id": 5,
             "label": "merge on touch too",
             "text": "Treat intervals that only touch at an endpoint as overlapping: use <= instead of <.",
             "observation": "5 of 5 tests pass.",
@@ -877,14 +1632,12 @@
             },
             "terminal": true,
             "reward": 1.0,
-            "samples": 1,
-            "lm": 0.64,
-            "sc": 0.3333,
-            "value": 0.5787,
+            "samples": 2,
+            "prior": 0.64,
             "rejected": null
           },
           {
-            "id": 4,
+            "id": 6,
             "label": "widen both ends",
             "text": "Sort by start, and when merging take the min of the starts and the max of the ends.",
             "observation": "4 of 5 tests pass.",
@@ -928,411 +1681,541 @@
             },
             "terminal": true,
             "reward": 0.8,
-            "samples": 2,
-            "lm": 0.71,
-            "sc": 0.6667,
-            "value": 0.7013,
+            "samples": 1,
+            "prior": 0.71,
             "rejected": null
           }
         ],
         "n": 3,
         "reflections_in_context": [
-          "merge([[3,5],[1,2]]) returned [[3, 5]], expected [[1,2],[3,5]]. 2 of 5 cases fail. Every failing case receives its intervals out of order and every passing case receives them sorted, so the approach is assuming an ordering the input does not guarantee. Sort first."
+          "merge([[1,4],[4,5]]) returned [[1, 4], [4, 5]], expected [[1,5]]. 1 of 5 cases fail.",
+          "merge([[3,5],[1,2]]) returned [[3, 5], [1, 2]], expected [[1,2],[3,5]]. 2 of 5 cases fail. Every failing case receives its intervals out of order and every passing case receives them sorted, so the approach is assuming an ordering the input does not guarantee. Sort first."
         ]
       },
       "focus": [
-        3,
-        4
+        5,
+        6
       ],
       "path": [
         0,
         2
       ],
-      "tokens": 688,
+      "tokens": 2026,
       "state": {
         "0": {
-          "visits": 2,
-          "value": 0.3,
+          "visits": 3,
+          "value": 0.4667,
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.6467,
+          "value": 0.6187,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": true
         },
-        "2": {
-          "visits": 1,
-          "value": 0.5627,
-          "reward": 0.8,
-          "lm": 0.62,
-          "sc": 0.3333,
-          "terminal": false,
-          "reflected": false
-        },
         "3": {
-          "visits": 1,
-          "value": 0.5787,
-          "reward": 1.0,
-          "lm": 0.64,
-          "sc": 0.3333,
+          "visits": 2,
+          "value": 0.6283,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
           "terminal": true,
-          "reflected": false
+          "reflected": true
         },
         "4": {
           "visits": 1,
-          "value": 0.7013,
-          "reward": 0.8,
-          "lm": 0.71,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        },
+        "5": {
+          "visits": 1,
+          "value": null,
+          "reward": 1.0,
+          "lm": null,
           "sc": 0.6667,
+          "prior": 0.64,
+          "terminal": true,
+          "reflected": false
+        },
+        "6": {
+          "visits": 1,
+          "value": null,
+          "reward": 0.8,
+          "lm": null,
+          "sc": 0.3333,
+          "prior": 0.71,
           "terminal": true,
           "reflected": false
         }
       }
     },
     {
-      "index": 9,
+      "index": 15,
       "op": "evaluation",
-      "iteration": 2,
+      "iteration": 3,
       "title": "Evaluation",
-      "summary": "V(s) = 0.8\u00b7LM(s) + 0.2\u00b7SC(s), scored after the environment replied.",
+      "summary": "V(s) = 0.8\u00b7LM(s) + 0.2\u00b7SC(s). LM(s) is graded now, from each state with the environment's reply in it.",
       "detail": {
         "lam": 0.8,
+        "timing": "after",
         "scores": [
           {
-            "id": 3,
+            "id": 5,
             "label": "merge on touch too",
-            "lm": 0.64,
-            "sc": 0.3333,
-            "value": 0.5787,
-            "reward": 1.0
+            "prior": 0.64,
+            "lm": 0.97,
+            "sc": 0.6667,
+            "value": 0.9093,
+            "reward": 1.0,
+            "why": "All 5 tests pass."
           },
           {
-            "id": 4,
+            "id": 6,
             "label": "widen both ends",
-            "lm": 0.71,
-            "sc": 0.6667,
-            "value": 0.7013,
-            "reward": 0.8
+            "prior": 0.71,
+            "lm": 0.773,
+            "sc": 0.3333,
+            "value": 0.6851,
+            "reward": 0.8,
+            "why": "4 of 5 tests pass; merge([[1,4],[4,5]]) returned [[1, 4], [4, 5]]."
           }
         ]
       },
       "focus": [
-        3,
-        4
+        5,
+        6
       ],
       "path": [
         0,
         2
       ],
-      "tokens": 688,
+      "tokens": 2579,
       "state": {
         "0": {
-          "visits": 2,
-          "value": 0.3,
+          "visits": 3,
+          "value": 0.4667,
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.6467,
+          "value": 0.6187,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": true
         },
-        "2": {
-          "visits": 1,
-          "value": 0.5627,
-          "reward": 0.8,
-          "lm": 0.62,
-          "sc": 0.3333,
-          "terminal": false,
-          "reflected": false
-        },
         "3": {
-          "visits": 1,
-          "value": 0.5787,
-          "reward": 1.0,
-          "lm": 0.64,
-          "sc": 0.3333,
+          "visits": 2,
+          "value": 0.6283,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
           "terminal": true,
-          "reflected": false
+          "reflected": true
         },
         "4": {
           "visits": 1,
-          "value": 0.7013,
-          "reward": 0.8,
-          "lm": 0.71,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.9093,
+          "reward": 1.0,
+          "lm": 0.97,
           "sc": 0.6667,
+          "prior": 0.64,
+          "terminal": true,
+          "reflected": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.6851,
+          "reward": 0.8,
+          "lm": 0.773,
+          "sc": 0.3333,
+          "prior": 0.71,
           "terminal": true,
           "reflected": false
         }
       }
     },
     {
-      "index": 10,
+      "index": 16,
       "op": "simulation",
-      "iteration": 2,
+      "iteration": 3,
       "title": "Simulation not needed",
-      "summary": "Expansion already reached a solved terminal state at node 3; there is nothing to roll out.",
+      "summary": "Expansion already reached a solved terminal state at node 5; there is nothing to roll out.",
       "detail": {
         "rollout": [
-          3
+          5
         ],
-        "terminal": 3,
+        "terminal": 5,
         "truncated": false,
         "skipped": true,
         "observation": "5 of 5 tests pass."
       },
       "focus": [
-        3
+        5
       ],
       "path": [
         0,
         2,
-        3
+        5
       ],
-      "tokens": 688,
+      "tokens": 2579,
       "state": {
         "0": {
-          "visits": 2,
-          "value": 0.3,
+          "visits": 3,
+          "value": 0.4667,
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.6467,
+          "value": 0.6187,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 2,
+          "value": 0.7317,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": true
         },
-        "2": {
-          "visits": 1,
-          "value": 0.5627,
-          "reward": 0.8,
-          "lm": 0.62,
-          "sc": 0.3333,
-          "terminal": false,
-          "reflected": false
-        },
         "3": {
-          "visits": 1,
-          "value": 0.5787,
-          "reward": 1.0,
-          "lm": 0.64,
-          "sc": 0.3333,
+          "visits": 2,
+          "value": 0.6283,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
           "terminal": true,
-          "reflected": false
+          "reflected": true
         },
         "4": {
           "visits": 1,
-          "value": 0.7013,
-          "reward": 0.8,
-          "lm": 0.71,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.9093,
+          "reward": 1.0,
+          "lm": 0.97,
           "sc": 0.6667,
+          "prior": 0.64,
+          "terminal": true,
+          "reflected": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.6851,
+          "reward": 0.8,
+          "lm": 0.773,
+          "sc": 0.3333,
+          "prior": 0.71,
           "terminal": true,
           "reflected": false
         }
       }
     },
     {
-      "index": 11,
+      "index": 17,
       "op": "backpropagation",
-      "iteration": 2,
+      "iteration": 3,
       "title": "Backpropagation",
-      "summary": "Reward 1 flows from node 3 up to the root, revising 3 values.",
+      "summary": "Reward 1 flows from node 5 up to the root, revising 3 values.",
       "detail": {
         "reward": 1.0,
-        "leaf": 3,
+        "leaf": 5,
         "updates": [
           {
-            "id": 3,
+            "id": 5,
             "before": {
               "visits": 1,
-              "value": 0.5787
+              "value": 0.9093
             },
             "after": {
               "visits": 2,
-              "value": 0.7893
+              "value": 0.9547
             }
           },
           {
             "id": 2,
             "before": {
-              "visits": 1,
-              "value": 0.5627
+              "visits": 2,
+              "value": 0.7317
             },
             "after": {
-              "visits": 2,
-              "value": 0.7813
+              "visits": 3,
+              "value": 0.8212
             }
           },
           {
             "id": 0,
             "before": {
-              "visits": 2,
-              "value": 0.3
+              "visits": 3,
+              "value": 0.4667
             },
             "after": {
-              "visits": 3,
-              "value": 0.5333
+              "visits": 4,
+              "value": 0.6
             }
           }
         ]
       },
       "focus": [
-        3,
+        5,
         2,
         0
       ],
       "path": [
         0,
         2,
-        3
+        5
       ],
-      "tokens": 688,
+      "tokens": 2579,
       "state": {
         "0": {
-          "visits": 3,
-          "value": 0.5333,
+          "visits": 4,
+          "value": 0.6,
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.6467,
+          "value": 0.6187,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 3,
+          "value": 0.8212,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": true
         },
-        "2": {
-          "visits": 2,
-          "value": 0.7813,
-          "reward": 0.8,
-          "lm": 0.62,
-          "sc": 0.3333,
-          "terminal": false,
-          "reflected": false
-        },
         "3": {
           "visits": 2,
-          "value": 0.7893,
-          "reward": 1.0,
-          "lm": 0.64,
-          "sc": 0.3333,
+          "value": 0.6283,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
           "terminal": true,
-          "reflected": false
+          "reflected": true
         },
         "4": {
           "visits": 1,
-          "value": 0.7013,
-          "reward": 0.8,
-          "lm": 0.71,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        },
+        "5": {
+          "visits": 2,
+          "value": 0.9547,
+          "reward": 1.0,
+          "lm": 0.97,
           "sc": 0.6667,
+          "prior": 0.64,
+          "terminal": true,
+          "reflected": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.6851,
+          "reward": 0.8,
+          "lm": 0.773,
+          "sc": 0.3333,
+          "prior": 0.71,
           "terminal": true,
           "reflected": false
         }
       }
     },
     {
-      "index": 12,
+      "index": 18,
       "op": "result",
-      "iteration": 2,
+      "iteration": 3,
       "title": "Search over",
-      "summary": "Solved: reward 1 at node 3.",
+      "summary": "Solved: reward 1 at node 5.",
       "detail": {
         "solved": true,
         "best_reward": 1.0,
-        "best_node": 3,
+        "best_node": 5,
         "best_path": [
           0,
           2,
-          3
+          5
         ],
-        "nodes": 5,
-        "iterations_run": 2,
+        "nodes": 7,
+        "iterations_run": 3,
         "stopped_because": "a trajectory reached the target reward",
         "reflections": [
-          "merge([[3,5],[1,2]]) returned [[3, 5]], expected [[1,2],[3,5]]. 2 of 5 cases fail. Every failing case receives its intervals out of order and every passing case receives them sorted, so the approach is assuming an ordering the input does not guarantee. Sort first."
+          "merge([[1,4],[4,5]]) returned [[1, 4], [4, 5]], expected [[1,5]]. 1 of 5 cases fail.",
+          "merge([[3,5],[1,2]]) returned [[3, 5], [1, 2]], expected [[1,2],[3,5]]. 2 of 5 cases fail. Every failing case receives its intervals out of order and every passing case receives them sorted, so the approach is assuming an ordering the input does not guarantee. Sort first."
         ]
       },
       "focus": [
         0,
         2,
-        3
+        5
       ],
       "path": [
         0,
         2,
-        3
+        5
       ],
-      "tokens": 688,
+      "tokens": 2579,
       "state": {
         "0": {
-          "visits": 3,
-          "value": 0.5333,
+          "visits": 4,
+          "value": 0.6,
           "reward": null,
           "lm": null,
           "sc": null,
+          "prior": null,
           "terminal": false,
           "reflected": false
         },
         "1": {
           "visits": 2,
-          "value": 0.6467,
+          "value": 0.6187,
           "reward": 0.6,
-          "lm": 0.7,
+          "lm": 0.63,
           "sc": 0.6667,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 3,
+          "value": 0.8212,
+          "reward": 0.8,
+          "lm": 0.746,
+          "sc": 0.3333,
+          "prior": 0.62,
           "terminal": false,
           "reflected": true
         },
-        "2": {
-          "visits": 2,
-          "value": 0.7813,
-          "reward": 0.8,
-          "lm": 0.62,
-          "sc": 0.3333,
-          "terminal": false,
-          "reflected": false
-        },
         "3": {
           "visits": 2,
-          "value": 0.7893,
-          "reward": 1.0,
-          "lm": 0.64,
-          "sc": 0.3333,
+          "value": 0.6283,
+          "reward": 0.6,
+          "lm": 0.654,
+          "sc": 0.6667,
+          "prior": 0.78,
           "terminal": true,
-          "reflected": false
+          "reflected": true
         },
         "4": {
           "visits": 1,
-          "value": 0.7013,
-          "reward": 0.8,
-          "lm": 0.71,
+          "value": 0.5611,
+          "reward": 0.6,
+          "lm": 0.618,
+          "sc": 0.3333,
+          "prior": 0.66,
+          "terminal": true,
+          "reflected": false
+        },
+        "5": {
+          "visits": 2,
+          "value": 0.9547,
+          "reward": 1.0,
+          "lm": 0.97,
           "sc": 0.6667,
+          "prior": 0.64,
+          "terminal": true,
+          "reflected": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.6851,
+          "reward": 0.8,
+          "lm": 0.773,
+          "sc": 0.3333,
+          "prior": 0.71,
           "terminal": true,
           "reflected": false
         }

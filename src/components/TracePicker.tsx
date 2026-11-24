@@ -2,11 +2,11 @@
  * Choosing a trace: the bundled ones, plus anything the user drops in.
  *
  * The bundled set is grouped by environment and, inside an environment, put in
- * reading order - the offline policy before a real model, a run that solved its
- * task before one that did not. `scripts/run_lats.py` writes the manifest in
- * that order already; sorting again here means a hand-promoted trace lands in
- * the right group too, and that the picker never depends on the file being
- * tidy.
+ * reading order - the offline policy before a real model, LATS before the
+ * baselines it is compared with, a run that solved its task before one that did
+ * not. `scripts/run_lats.py` writes the manifest in that order already;
+ * sorting again here means a hand-promoted trace lands in the right group too,
+ * and that the picker never depends on the file being tidy.
  *
  * Uploaded traces are held in memory for the session only. Nothing is written
  * anywhere, and the file never leaves the browser.
@@ -24,7 +24,20 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 
-import { ACCENT, GOOD, INK, INK_DIM, INK_FAINT, MONO, STROKE, SURFACE_2, alpha } from '../theme'
+import type { Method } from '../types'
+import { METHODS, METHOD_ORDER } from '../lib/methods'
+import {
+  ACCENT,
+  GOOD,
+  INK,
+  INK_DIM,
+  INK_FAINT,
+  MONO,
+  PRIMARY,
+  STROKE,
+  SURFACE_2,
+  alpha,
+} from '../theme'
 
 export interface Source {
   key: string
@@ -37,6 +50,9 @@ export interface Source {
   taskTitle?: string
   note?: string
   solved?: boolean
+  method?: Method
+  /** Written by version 1.0, which scored before execution. */
+  legacy?: boolean
 }
 
 interface Props {
@@ -48,6 +64,8 @@ interface Props {
   /** Phone: a row of its own under the app bar, so the select takes the width
       and the upload button gives up its label rather than its target. */
   compact?: boolean
+  /** A picker inside a comparison pane: uploads go through the app bar. */
+  noUpload?: boolean
 }
 
 /** One environment's worth of traces, in the order they should be read. */
@@ -76,14 +94,15 @@ function groupByTask(sources: Source[]): Group[] {
   for (const group of groups.values()) {
     const rank = (s: Source) => [
       s.label.startsWith('mock_') ? 0 : 1,
+      METHOD_ORDER.indexOf(s.method ?? 'lats'),
       s.solved === false ? 1 : 0,
     ]
     group.items = group.items
       .map((s, i) => ({ s, i }))
       .sort((a, b) => {
-        const [pa, sa] = rank(a.s)
-        const [pb, sb] = rank(b.s)
-        return pa - pb || sa - sb || a.i - b.i
+        const ra = rank(a.s)
+        const rb = rank(b.s)
+        return ra[0] - rb[0] || ra[1] - rb[1] || ra[2] - rb[2] || a.i - b.i
       })
       .map(({ s }) => s)
   }
@@ -97,6 +116,7 @@ export default function TracePicker({
   onSelect,
   onUpload,
   compact,
+  noUpload,
 }: Props) {
   const bundled = sources.filter((s) => s.kind === 'bundled')
   const uploaded = sources.filter((s) => s.kind === 'uploaded')
@@ -184,7 +204,7 @@ export default function TracePicker({
         )}
       </Select>
 
-      {compact ? (
+      {noUpload ? null : compact ? (
         <Tooltip title="Upload a trace" arrow>
           <IconButton
             component="label"
@@ -244,10 +264,31 @@ function renderItem(source: Source) {
       value={source.key}
       sx={{ display: 'block', py: 0.9, borderBottom: `1px solid ${alpha(STROKE, 0.7)}` }}
     >
-      <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
+      <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
         <Typography sx={{ fontFamily: MONO, fontSize: '0.8rem', color: INK }}>
           {source.label}
         </Typography>
+        {source.method && source.method !== 'lats' && (
+          <Chip
+            size="small"
+            label={METHODS[source.method]?.short ?? source.method}
+            sx={{
+              height: 18,
+              fontSize: '0.63rem',
+              fontWeight: 700,
+              bgcolor: alpha(PRIMARY, 0.08),
+              color: PRIMARY,
+            }}
+          />
+        )}
+        {source.legacy && (
+          <Chip
+            size="small"
+            variant="outlined"
+            label="v1.0 scoring"
+            sx={{ height: 18, fontSize: '0.63rem', color: ACCENT, borderColor: alpha(ACCENT, 0.6) }}
+          />
+        )}
         {source.solved !== undefined && (
           <Chip
             size="small"

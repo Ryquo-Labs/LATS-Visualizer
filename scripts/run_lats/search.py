@@ -21,6 +21,15 @@ what :func:`backpropagate` implements::
 descends greedily by value, in the real environment, until it reaches a
 terminal state. The randomness is replaced by the policy plus real execution.
 
+**The value is taken after the environment replies.** That ordering is the
+paper's stated difference from Tree of Thoughts, so the code keeps it
+structural: :meth:`LATS.expand` samples and executes and grades nothing, and
+:meth:`LATS.evaluate` runs afterwards, asking the policy's value function about
+each state with its observation in hand. The policy's own opinion of a move
+from before it ran - its ``prior`` - is recorded beside the grade so the viewer
+can show what the observation changed, and is never part of ``V(s)`` unless
+``Config.evaluation`` is set to ``"before"`` for the ablation.
+
 Everything the search does is announced to a recorder, so a run can be replayed
 frame by frame afterwards. The recorder is optional; the algorithm does not
 depend on being watched.
@@ -32,7 +41,7 @@ from math import log, sqrt
 from typing import Any
 
 from .tasks.base import Task
-from .types import Config, Node, Observation, Proposal
+from .types import Config, Grade, Node, Proposal
 
 
 def uct(child: Node, parent: Node, w: float) -> float:
@@ -82,6 +91,9 @@ class NullRecorder:
 
 class LATS:
     """One search over one task."""
+
+    #: Written into the trace, so the viewer knows which operations to expect.
+    method = "lats"
 
     def __init__(
         self,
@@ -166,16 +178,19 @@ class LATS:
             "chosen": False,
         }
 
-    # -- 2. expansion + 3. evaluation ---------------------------------------
+    # -- 2. expansion ---------------------------------------------------------
 
     def expand(self, node: Node) -> tuple[list[Node], list[dict]]:
-        """Sample ``n`` actions, execute every one of them, and score the
-        states that come back.
+        """Sample ``n`` actions and execute every one of them.
 
-        Samples are drawn with replacement, then grouped: two samples that
-        reach the same state become one child, and the size of the group is the
-        self-consistency score ``SC(s)``. The environment is stepped once per
-        group, not once per sample.
+        Samples are independent draws, then grouped: two samples that reach
+        the same state become one child, and the share of the samples in its
+        group is the self-consistency score ``SC(s)``. The environment is
+        stepped once per group, not once per sample.
+
+        Nothing is graded here. The children leave this method with a value of
+        ``None``; :meth:`evaluate` gives them one, once their observations
+        exist.
         """
         proposals = self.policy.propose(
             self.task, node.data, self.cfg.n, self.reflections
@@ -195,7 +210,12 @@ class LATS:
                 data, obs = self.task.step(node.data, head.action)
             except Exception as exc:  # a policy may propose something illegal
                 records.append(
-                    {"label": head.action.label, "rejected": str(exc), "id": None}
+                    {
+                        "label": head.action.label,
+                        "rejected": str(exc),
+                        "id": None,
+                        "samples": len(group),
+                    }
                 )
                 continue
 
@@ -207,15 +227,10 @@ class LATS:
                 data=data,
                 terminal=obs.terminal or node.depth + 1 >= self.cfg.max_depth,
                 reward=obs.reward,
+                value=None,
             )
-            # V(s) = lambda * LM(s) + (1 - lambda) * SC(s), computed *after* the
-            # environment has spoken. That ordering is the paper's stated
-            # difference from Tree of Thoughts.
-            child.lm_score = sum(p.self_eval for p in group) / len(group)
+            child.prior = sum(p.prior for p in group) / len(group)
             child.sc_score = len(group) / len(proposals)
-            child.value = (
-                self.cfg.lam * child.lm_score + (1 - self.cfg.lam) * child.sc_score
-            )
             children.append(child)
             self.rec.register(child)
             records.append(
@@ -228,9 +243,7 @@ class LATS:
                     "terminal": child.terminal,
                     "reward": obs.reward,
                     "samples": len(group),
-                    "lm": round(child.lm_score, 4),
-                    "sc": round(child.sc_score, 4),
-                    "value": round(child.value, 4),
+                    "prior": round(child.prior, 4),
                     "rejected": None,
                 }
             )
@@ -238,14 +251,64 @@ class LATS:
         node.children = children
         return children, records
 
+    # -- 3. evaluation --------------------------------------------------------
+
+    def evaluate(self, children: list[Node]) -> list[dict]:
+        """Grade every new child, now that the environment has replied to it.
+
+        ``V(s) = lambda * LM(s) + (1 - lambda) * SC(s)``. ``LM(s)`` is a
+        separate call to the policy's value function, made here - after
+        ``task.step`` - from the child's state and observation and the notes in
+        context. ``SC(s)`` was counted at expansion.
+
+        With ``Config.evaluation == "before"`` the policy's prior stands in for
+        ``LM(s)`` and no grading call is made. That is the Tree-of-Thoughts
+        ordering - an opinion, not an observation - kept as an ablation.
+        """
+        lam = self.cfg.lam
+        scores: list[dict] = []
+        for child in children:
+            prior = child.prior if child.prior is not None else 0.0
+            if self.cfg.evaluation == "before":
+                grade = Grade(prior, "The policy's own grade of the move, from before it ran.")
+            else:
+                assert child.action is not None and child.observation is not None
+                grade = self.policy.evaluate(
+                    self.task,
+                    child.data,
+                    child.observation,
+                    child.action,
+                    prior,
+                    self.reflections,
+                )
+            child.lm_score = grade.score
+            child.why = grade.why
+            sc = child.sc_score or 0.0
+            child.value = lam * grade.score + (1 - lam) * sc
+            scores.append(
+                {
+                    "id": child.id,
+                    "label": child.action.label if child.action else "root",
+                    "prior": round(prior, 4),
+                    "lm": round(grade.score, 4),
+                    "sc": round(sc, 4),
+                    "value": round(child.value, 4),
+                    "reward": child.reward,
+                    "why": grade.why,
+                }
+            )
+        return scores
+
     # -- 4. simulation ------------------------------------------------------
 
-    def simulate(self, start: Node) -> tuple[Node, list[Node], bool]:
+    def simulate(self, start: Node) -> tuple[Node, list[Node], bool, list[dict]]:
         """Descend greedily by value until a terminal state.
 
-        Not a random playout. Expansion happens as needed, and every step is
-        executed in the real environment. Returns the node reached, the path
-        walked, and whether it ran out of depth instead of finishing.
+        Not a random playout. Expansion happens as needed, every step is
+        executed in the real environment, and every state reached is graded
+        after its observation exists, exactly as in the main loop. Returns the
+        node reached, the path walked, whether it ran out of depth instead of
+        finishing, and the grades given along the way.
 
         A node can be marked terminal for two different reasons - the
         environment said so, or the depth limit did - and only the first is a
@@ -254,15 +317,17 @@ class LATS:
         """
         node = start
         walked = [node]
+        graded: list[dict] = []
         while not node.terminal and node.depth < self.cfg.max_depth:
             if not node.children:
                 children, _ = self.expand(node)
                 if not children:
-                    return node, walked, True
-            node = max(node.children, key=lambda c: c.value)
+                    return node, walked, True, graded
+                graded += self.evaluate(children)
+            node = max(node.children, key=lambda c: c.value or 0.0)
             walked.append(node)
         finished = node.observation is not None and node.observation.terminal
-        return node, walked, not finished
+        return node, walked, not finished, graded
 
     # -- the loop -----------------------------------------------------------
 
@@ -276,7 +341,7 @@ class LATS:
                 f"{self.task.title}. The search starts from an empty state; "
                 f"reward is {self.task.reward_desc}."
             ),
-            detail={"task": self.task.brief(), "config": _config_dict(cfg)},
+            detail={"task": self.task.brief(), "config": cfg.to_dict(self.method)},
             focus=[self.root.id],
             path=[self.root.id],
         )
@@ -325,49 +390,59 @@ class LATS:
                 )
                 continue
 
+            samples = sum(r.get("samples", 0) for r in records if r["id"] is not None)
+            # A real model can return a sample with no parseable action in it -
+            # cut off by the token cap, say. Those are not in SC(s)'s
+            # denominator, so when any are missing the trace says how many of
+            # the n were usable rather than letting "2/5 samples" disagree
+            # with an SC(s) of 0.5.
+            usable = sum(r.get("samples", 0) for r in records)
+            detail: dict[str, Any] = {
+                "parent": node.id,
+                "children": records,
+                "n": cfg.n,
+                "reflections_in_context": list(self.reflections),
+            }
+            if usable < cfg.n:
+                detail["usable"] = usable
             self.rec.emit(
                 "expansion",
                 iteration=iteration,
                 title="Expansion",
                 summary=(
-                    f"{cfg.n} samples from the policy collapsed to "
-                    f"{len(children)} distinct state"
+                    f"{cfg.n} independent samples from the policy"
+                    + (f", {usable} of them usable," if usable < cfg.n else "")
+                    + f" reached {len(children)} distinct state"
                     f"{'' if len(children) == 1 else 's'}, each executed in the "
-                    "environment."
+                    "environment"
+                    + (
+                        "; no two samples agreed."
+                        if samples and len(children) == samples
+                        else "."
+                    )
                 ),
-                detail={
-                    "parent": node.id,
-                    "children": records,
-                    "n": cfg.n,
-                    "reflections_in_context": list(self.reflections),
-                },
+                detail=detail,
                 focus=[c.id for c in children],
                 path=[p.id for p in path],
             )
 
-            # 3. evaluation
+            # 3. evaluation - only now, with every observation in hand
+            scores = self.evaluate(children)
             self.rec.emit(
                 "evaluation",
                 iteration=iteration,
                 title="Evaluation",
                 summary=(
-                    f"V(s) = {cfg.lam:g}·LM(s) + {1 - cfg.lam:g}·SC(s), "
-                    "scored after the environment replied."
+                    f"V(s) = {cfg.lam:g}·LM(s) + {1 - cfg.lam:g}·SC(s). "
+                    + (
+                        "LM(s) is graded now, from each state with the "
+                        "environment's reply in it."
+                        if cfg.evaluation != "before"
+                        else "Ablation: LM(s) is the policy's own grade from "
+                        "before the move ran, as in Tree of Thoughts."
+                    )
                 ),
-                detail={
-                    "lam": cfg.lam,
-                    "scores": [
-                        {
-                            "id": c.id,
-                            "label": c.action.label if c.action else "root",
-                            "lm": round(c.lm_score or 0.0, 4),
-                            "sc": round(c.sc_score or 0.0, 4),
-                            "value": round(c.value, 4),
-                            "reward": c.reward,
-                        }
-                        for c in children
-                    ],
-                },
+                detail={"lam": cfg.lam, "timing": cfg.evaluation, "scores": scores},
                 focus=[c.id for c in children],
                 path=[p.id for p in path],
             )
@@ -378,7 +453,7 @@ class LATS:
             # arrive already solving the task. There is nothing to roll out
             # from a finished trajectory, and no reason to pretend the tests
             # were not run - take it and back it up.
-            leaf = max(children, key=lambda c: c.value)
+            leaf = max(children, key=lambda c: c.value or 0.0)
             solved_child = next(
                 (c for c in children if (c.reward or 0.0) >= cfg.solved_at), None
             )
@@ -404,7 +479,7 @@ class LATS:
                     path=[p.id for p in path] + [leaf.id],
                 )
             elif cfg.simulate:
-                leaf, walked, truncated = self.simulate(leaf)
+                leaf, walked, truncated, graded = self.simulate(leaf)
                 self.rec.emit(
                     "simulation",
                     iteration=iteration,
@@ -424,6 +499,9 @@ class LATS:
                         "terminal": leaf.id,
                         "truncated": truncated,
                         "observation": leaf.observation.text if leaf.observation else "",
+                        # Every state the rollout created, graded after its
+                        # reply exactly as in the evaluation step.
+                        "graded": graded,
                     },
                     focus=[n.id for n in walked],
                     path=[p.id for p in path] + [n.id for n in walked[1:]],
@@ -534,21 +612,6 @@ class LATS:
             path=result["best_path"],
         )
         return result
-
-
-def _config_dict(cfg: Config) -> dict[str, Any]:
-    return {
-        "n": cfg.n,
-        "w": cfg.w,
-        "lambda": cfg.lam,
-        "iterations": cfg.iterations,
-        "max_depth": cfg.max_depth,
-        "simulate": cfg.simulate,
-        "reflect": cfg.reflect,
-        "reflect_threshold": cfg.reflect_threshold,
-        "solved_at": cfg.solved_at,
-        "seed": cfg.seed,
-    }
 
 
 def _selection_summary(levels: list[dict], target: Node) -> str:

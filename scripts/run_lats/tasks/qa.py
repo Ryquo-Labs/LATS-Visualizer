@@ -27,7 +27,7 @@ import re
 import string
 from typing import Any
 
-from ..types import Action, Observation, Proposal
+from ..types import Action, Grade, Observation, Proposal
 from .base import Task
 
 #: A miniature related-work wiki. Every fact here is checkable against the
@@ -129,6 +129,12 @@ def normalise(text: str) -> str:
 #: Words that carry no venue information, so an answer is not marked wrong for
 #: spelling them differently.
 _FILLER = {"and", "of", "at", "in", "on", "for", "the", "a", "an"}
+
+#: What the question is about, as the offline grader reads it: its content
+#: words, with the glue taken out.
+_QUESTION_WORDS = {
+    w for w in normalise(QUESTION).split() if w not in _FILLER | {"which", "was", "that"}
+}
 
 
 def matches_gold(answer: str) -> bool:
@@ -273,7 +279,7 @@ class MultiHopQATask(Task):
                             text=f"search[{term}]",
                             payload={"kind": "search", "term": term},
                         ),
-                        self_eval=round(min(max(score, 0.05), 0.95), 3),
+                        prior=round(min(max(score, 0.05), 0.95), 3),
                         rationale=f"look up {term}",
                         signature=f"search:{term}",
                     ),
@@ -292,7 +298,7 @@ class MultiHopQATask(Task):
                             text=f"finish[{answer}]",
                             payload={"kind": "finish", "answer": answer},
                         ),
-                        self_eval=round(min(max(score, 0.05), 0.95), 3),
+                        prior=round(min(max(score, 0.05), 0.95), 3),
                         rationale=f"commit to {answer}",
                         signature=f"finish:{answer}",
                     ),
@@ -309,6 +315,49 @@ class MultiHopQATask(Task):
             for _ in range(n)
         ]
 
+    def mock_evaluate(
+        self,
+        data: dict,
+        observation: Observation,
+        action: Action,
+        prior: float,
+        reflections: list[str],
+    ) -> Grade:
+        """Grade a trajectory by what it has read, now the read has happened.
+
+        An answer is graded by the environment's verdict on it - the reply to
+        ``finish`` says whether it was accepted. A search is graded by how much
+        of the question everything read so far covers: word overlap, plus a
+        little for having seen any venue and year at all. That is shallow in
+        exactly the way that matters here. Read on its own, the UCT entry - the
+        distractor - covers the question as well as the entry that holds the
+        answer, because a grader that counts words cannot tell *presented*
+        from *introduced*.
+        """
+        detail = observation.detail or {}
+        if observation.terminal:
+            answer = detail.get("answer", "")
+            if observation.reward and observation.reward >= 1.0:
+                return Grade(0.97, f"The environment accepted {answer!r}.")
+            return Grade(0.03, f"The environment rejected {answer!r}.")
+
+        if not detail.get("document"):
+            return Grade(0.10, "The search matched no document.")
+        if data["retrieved"].count(observation.text) > 1:
+            return Grade(0.15, "Nothing new: that document had already been read.")
+
+        read = data["retrieved"]
+        covered = _QUESTION_WORDS & set(normalise(read).split())
+        score = 0.2 + 0.8 * len(covered) / len(_QUESTION_WORDS)
+        if _VENUE_YEAR.search(read):
+            score += 0.1
+        return Grade(
+            round(min(score, 0.9), 3),
+            f"What has been read covers {len(covered)} of the question's "
+            f"{len(_QUESTION_WORDS)} key words"
+            + ("; it names a venue and a year." if _VENUE_YEAR.search(read) else "."),
+        )
+
     # -- online policy ------------------------------------------------------
 
     def render(self, data: dict) -> str:
@@ -318,12 +367,44 @@ class MultiHopQATask(Task):
             f"What you have read:\n{data['retrieved'] or '  (nothing yet)'}"
         )
 
+    def render_observation(self, observation: Observation) -> str:
+        # The viewer's copy of a finish reply names the gold answer. The agent's
+        # does not: it learns the verdict, as in the HotPotQA environment ReAct
+        # introduced, and never the string it was marked against.
+        detail = observation.detail or {}
+        if "answer" in detail:
+            verdict = "accepted" if detail.get("exact_match") else "rejected"
+            return (
+                f"Answered {detail['answer']!r}. The episode is over and the "
+                f"answer was {verdict}."
+            )
+        return observation.text
+
     def action_schema(self) -> str:
         return (
-            'Return JSON: {"candidates": [{"action": "search[term]" or '
-            '"finish[answer]", "self_eval": 0.0-1.0}]}. Search before you '
-            "finish; the answer must name a venue and a year."
+            'Return JSON: {"action": "search[term]" or "finish[answer]", '
+            '"prior": 0.0-1.0}. Search before you finish; the answer must name '
+            "a venue and a year. prior is your own estimate, from 0 to 1, that "
+            "this action leads to the right answer."
         )
+
+    def signature(self, action: Action) -> str:
+        # The state, not the spelling. A real model rarely words a query the
+        # same way twice - "search[MCTS introduced paper venue year]" and
+        # "search[Monte Carlo Tree Search introduced]" - so agreement on the
+        # text would leave SC(s) at 1/n even when every sample reads the same
+        # page. Two searches agree when they would read the same document.
+        # Two answers agree when they have the same content words, in any
+        # order and with any bracketed abbreviation dropped - so
+        # "Computers and Games (CG) in 2006" and "Computers and Games, 2006"
+        # are one answer, by the same word-level reading matches_gold uses.
+        if action.payload["kind"] == "finish":
+            words = normalise(re.sub(r"\([^)]*\)", " ", action.payload["answer"])).split()
+            return "finish:" + " ".join(sorted({w for w in words if w not in _FILLER}))
+        doc = retrieve(action.payload["term"])
+        if doc is None:
+            return f"search?{normalise(action.payload['term'])}"
+        return f"search:{doc['title']}"
 
     def parse_action(self, obj: dict, data: dict) -> Action:
         # ``data`` is unused: a tool call means the same at any node.

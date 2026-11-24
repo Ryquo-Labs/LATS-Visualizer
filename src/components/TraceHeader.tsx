@@ -1,4 +1,8 @@
-/** The task being searched, and how this particular run was configured. */
+/**
+ * The task being searched, which method searched it, and how this particular
+ * run was configured - including, for a trace written before the scoring fix,
+ * a warning chip that says so before anyone reads a number from it.
+ */
 
 import { useState } from 'react'
 import Box from '@mui/material/Box'
@@ -13,7 +17,42 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import type { Trace } from '../types'
 import { num } from '../lib/format'
-import { ACCENT, GOOD, INK, INK_DIM, INK_FAINT, MONO, TEAL, alpha } from '../theme'
+import { caveats, isLegacy, methodOf, settingsOf } from '../lib/methods'
+import { ACCENT, GOOD, INK, INK_DIM, INK_FAINT, MONO, PRIMARY, TEAL, alpha } from '../theme'
+
+/** Which algorithm ran, with its citation on hover. */
+export function MethodChip({ trace }: { trace: Pick<Trace, 'method'> }) {
+  const method = methodOf(trace)
+  return (
+    <Tooltip title={`${method.name} · ${method.cite}. ${method.blurb}`} arrow>
+      <Chip
+        size="small"
+        label={method.short}
+        sx={{
+          bgcolor: alpha(PRIMARY, method.id === 'lats' ? 0.12 : 0.06),
+          color: PRIMARY,
+          border: `1px solid ${alpha(PRIMARY, 0.35)}`,
+          fontWeight: 700,
+        }}
+      />
+    </Tooltip>
+  )
+}
+
+/** Shown on a trace written by version 1.0, which scored before execution. */
+export function LegacyChip({ trace }: { trace: Trace }) {
+  if (!isLegacy(trace)) return null
+  return (
+    <Tooltip title={caveats(trace).join(' ')} arrow>
+      <Chip
+        size="small"
+        variant="outlined"
+        label="v1.0 scoring"
+        sx={{ color: ACCENT, borderColor: alpha(ACCENT, 0.6), fontWeight: 600 }}
+      />
+    </Tooltip>
+  )
+}
 
 export default function TraceHeader({
   trace,
@@ -29,7 +68,7 @@ export default function TraceHeader({
    */
   compact?: boolean
 }) {
-  const { config: cfg, result, policy } = trace
+  const { result, policy } = trace
   const [open, setOpen] = useState(false)
 
   const solved = (
@@ -60,16 +99,13 @@ export default function TraceHeader({
 
   const settings = (
     <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
-      <Meta label="n" value={String(cfg.n)} title="samples per expansion" />
-      <Meta label="w" value={String(cfg.w)} title="exploration weight in UCT" />
-      <Meta
-        label="λ"
-        value={String(cfg.lambda)}
-        title="weight on the model's own evaluation, against self-consistency"
-      />
-      <Meta label="depth" value={`≤ ${cfg.max_depth}`} title="hard depth limit" />
-      {!cfg.simulate && <Meta label="simulation" value="off" title="the paper skips it in the programming setting" />}
-      {!cfg.reflect && <Meta label="reflection" value="off" title="ablation" />}
+      {settingsOf(trace)
+        // The header has room for the knobs, not the budget; the init step
+        // lists everything.
+        .filter((s) => s.label !== 'iterations')
+        .map((s) => (
+          <Meta key={s.label} label={s.label} value={s.value} title={s.title} />
+        ))}
       <Meta
         label="best"
         value={num(result.best_reward)}
@@ -80,7 +116,7 @@ export default function TraceHeader({
         value={policy.kind === 'mock' ? `mock · seed ${policy.seed}` : (policy.model ?? policy.name)}
         title={
           policy.kind === 'mock'
-            ? 'Deterministic offline sampler. The environment is real; the policy is not.'
+            ? 'Deterministic offline sampler, and a per-task heuristic in place of the model’s grade. The environment is real; the policy is not.'
             : 'Sampled from a real model.'
         }
       />
@@ -97,6 +133,7 @@ export default function TraceHeader({
           >
             {trace.task.title}
           </Typography>
+          <MethodChip trace={trace} />
           {solved}
           {spent}
           <IconButton
@@ -118,6 +155,11 @@ export default function TraceHeader({
           <Typography variant="body2" sx={{ color: INK_DIM, mt: 0.5 }}>
             {trace.task.prompt}
           </Typography>
+          {isLegacy(trace) && (
+            <Box sx={{ mt: 0.75 }}>
+              <LegacyChip trace={trace} />
+            </Box>
+          )}
           {settings}
         </Collapse>
       </Paper>
@@ -126,11 +168,17 @@ export default function TraceHeader({
 
   return (
     <Paper elevation={0} sx={{ px: 1.5, py: 1.25 }}>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline', flexWrap: 'wrap' }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}
+      >
         <Typography variant="h6" sx={{ color: INK }}>
           {trace.task.title}
         </Typography>
+        <MethodChip trace={trace} />
         {solved}
+        <LegacyChip trace={trace} />
         <Box sx={{ flex: 1 }} />
         {spent}
       </Stack>

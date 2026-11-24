@@ -1,0 +1,498 @@
+{
+  "schema": "lats-trace/1",
+  "name": "mock_game-of-24_react",
+  "method": "react",
+  "generated_by": {
+    "package": "run_lats",
+    "version": "1.1.0"
+  },
+  "task": {
+    "id": "game-of-24",
+    "family": "game",
+    "title": "Game of 24",
+    "prompt": "Use 2, 5, 8, 11 exactly once each, with + - * / and any bracketing, to make 24.",
+    "reward": "1 if the final value is exactly 24 and every number was used once, else 0",
+    "context": {
+      "Numbers": [
+        "2",
+        "5",
+        "8",
+        "11"
+      ]
+    }
+  },
+  "config": {
+    "n": 1,
+    "w": 1.0,
+    "lambda": 0.5,
+    "iterations": 1,
+    "max_depth": 3,
+    "simulate": true,
+    "reflect": true,
+    "reflect_threshold": 1.0,
+    "solved_at": 1.0,
+    "seed": 7,
+    "evaluation": "none"
+  },
+  "policy": {
+    "kind": "mock",
+    "name": "MockLLM",
+    "model": null,
+    "seed": 7,
+    "calls": 3,
+    "tokens": 372,
+    "tokens_are_estimated": true,
+    "sampling": "independent"
+  },
+  "result": {
+    "solved": false,
+    "best_reward": 0.0,
+    "best_node": 3,
+    "best_path": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nodes": 4,
+    "iterations_run": 1,
+    "stopped_because": "the episode ended",
+    "reflections": []
+  },
+  "nodes": [
+    {
+      "id": 0,
+      "parent": null,
+      "depth": 0,
+      "label": "root",
+      "action": null,
+      "observation": null,
+      "detail": {},
+      "terminal": false,
+      "created_at": 0
+    },
+    {
+      "id": 1,
+      "parent": 0,
+      "depth": 1,
+      "label": "2 / 8",
+      "action": "2 / 8 = 1/4",
+      "observation": "2 / 8 = 1/4. Left to combine: 5, 11, 1/4.",
+      "detail": {
+        "steps": [
+          "2 / 8 = 1/4"
+        ],
+        "remaining": [
+          "5",
+          "11",
+          "1/4"
+        ]
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 2,
+      "parent": 1,
+      "depth": 2,
+      "label": "5 - 11",
+      "action": "5 - 11 = -6",
+      "observation": "5 - 11 = -6. Left to combine: -6, 1/4.",
+      "detail": {
+        "steps": [
+          "2 / 8 = 1/4",
+          "5 - 11 = -6"
+        ],
+        "remaining": [
+          "-6",
+          "1/4"
+        ]
+      },
+      "terminal": false,
+      "created_at": 2
+    },
+    {
+      "id": 3,
+      "parent": 2,
+      "depth": 3,
+      "label": "-6 / 1/4",
+      "action": "-6 / 1/4 = -24",
+      "observation": "-6 / 1/4 = -24. Final value -24 - that is not 24.",
+      "detail": {
+        "steps": [
+          "2 / 8 = 1/4",
+          "5 - 11 = -6",
+          "-6 / 1/4 = -24"
+        ],
+        "final": "-24",
+        "target": 24,
+        "expression": "2 / 8 = 1/4 ; 5 - 11 = -6 ; -6 / 1/4 = -24"
+      },
+      "terminal": true,
+      "created_at": 3
+    }
+  ],
+  "steps": [
+    {
+      "index": 0,
+      "op": "init",
+      "iteration": 0,
+      "title": "Root",
+      "summary": "Game of 24. ReAct samples one action at a time and commits to each; reward is 1 if the final value is exactly 24 and every number was used once, else 0.",
+      "detail": {
+        "task": {
+          "id": "game-of-24",
+          "family": "game",
+          "title": "Game of 24",
+          "prompt": "Use 2, 5, 8, 11 exactly once each, with + - * / and any bracketing, to make 24.",
+          "reward": "1 if the final value is exactly 24 and every number was used once, else 0",
+          "context": {
+            "Numbers": [
+              "2",
+              "5",
+              "8",
+              "11"
+            ]
+          }
+        },
+        "config": {
+          "n": 1,
+          "w": 1.0,
+          "lambda": 0.5,
+          "iterations": 1,
+          "max_depth": 3,
+          "simulate": true,
+          "reflect": true,
+          "reflect_threshold": 1.0,
+          "solved_at": 1.0,
+          "seed": 7,
+          "evaluation": "none"
+        }
+      },
+      "focus": [
+        0
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 0,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 1,
+      "op": "expansion",
+      "iteration": 1,
+      "title": "Act",
+      "summary": "One sample, and it is taken: 2 / 8.",
+      "detail": {
+        "parent": 0,
+        "n": 1,
+        "children": [
+          {
+            "id": 1,
+            "label": "2 / 8",
+            "text": "2 / 8 = 1/4",
+            "observation": "2 / 8 = 1/4. Left to combine: 5, 11, 1/4.",
+            "detail": {
+              "steps": [
+                "2 / 8 = 1/4"
+              ],
+              "remaining": [
+                "5",
+                "11",
+                "1/4"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.15,
+            "rejected": null
+          }
+        ],
+        "reflections_in_context": []
+      },
+      "focus": [
+        1
+      ],
+      "path": [
+        0,
+        1
+      ],
+      "tokens": 124,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 2,
+      "op": "expansion",
+      "iteration": 1,
+      "title": "Act",
+      "summary": "One sample, and it is taken: 5 - 11.",
+      "detail": {
+        "parent": 1,
+        "n": 1,
+        "children": [
+          {
+            "id": 2,
+            "label": "5 - 11",
+            "text": "5 - 11 = -6",
+            "observation": "5 - 11 = -6. Left to combine: -6, 1/4.",
+            "detail": {
+              "steps": [
+                "2 / 8 = 1/4",
+                "5 - 11 = -6"
+              ],
+              "remaining": [
+                "-6",
+                "1/4"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          }
+        ],
+        "reflections_in_context": []
+      },
+      "focus": [
+        2
+      ],
+      "path": [
+        0,
+        1,
+        2
+      ],
+      "tokens": 247,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 3,
+      "op": "expansion",
+      "iteration": 1,
+      "title": "Act",
+      "summary": "One sample, and it is taken: -6 / 1/4.",
+      "detail": {
+        "parent": 2,
+        "n": 1,
+        "children": [
+          {
+            "id": 3,
+            "label": "-6 / 1/4",
+            "text": "-6 / 1/4 = -24",
+            "observation": "-6 / 1/4 = -24. Final value -24 - that is not 24.",
+            "detail": {
+              "steps": [
+                "2 / 8 = 1/4",
+                "5 - 11 = -6",
+                "-6 / 1/4 = -24"
+              ],
+              "final": "-24",
+              "target": 24,
+              "expression": "2 / 8 = 1/4 ; 5 - 11 = -6 ; -6 / 1/4 = -24"
+            },
+            "terminal": true,
+            "reward": 0.0,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          }
+        ],
+        "reflections_in_context": []
+      },
+      "focus": [
+        3
+      ],
+      "path": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tokens": 372,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false
+        },
+        "3": {
+          "visits": 1,
+          "value": null,
+          "reward": 0.0,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": true,
+          "reflected": false
+        }
+      }
+    },
+    {
+      "index": 4,
+      "op": "result",
+      "iteration": 1,
+      "title": "Search over",
+      "summary": "Stopped without solving - the episode ended. Reward 0.",
+      "detail": {
+        "solved": false,
+        "best_reward": 0.0,
+        "best_node": 3,
+        "best_path": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "nodes": 4,
+        "iterations_run": 1,
+        "stopped_because": "the episode ended",
+        "reflections": []
+      },
+      "focus": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "path": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tokens": 372,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false
+        },
+        "1": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false
+        },
+        "2": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false
+        },
+        "3": {
+          "visits": 1,
+          "value": null,
+          "reward": 0.0,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": true,
+          "reflected": false
+        }
+      }
+    }
+  ]
+}
