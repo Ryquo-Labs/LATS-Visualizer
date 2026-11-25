@@ -1,0 +1,3578 @@
+{
+  "schema": "lats-trace/1",
+  "name": "mock_game-of-24_tot",
+  "method": "tot",
+  "generated_by": {
+    "package": "run_lats",
+    "version": "1.1.0"
+  },
+  "task": {
+    "id": "game-of-24",
+    "family": "game",
+    "title": "Game of 24",
+    "prompt": "Use 2, 5, 8, 11 exactly once each, with + - * / and any bracketing, to make 24.",
+    "reward": "1 if the final value is exactly 24 and every number was used once, else 0",
+    "context": {
+      "Numbers": [
+        "2",
+        "5",
+        "8",
+        "11"
+      ]
+    }
+  },
+  "config": {
+    "n": 5,
+    "w": 1.0,
+    "lambda": 0.5,
+    "iterations": 12,
+    "max_depth": 3,
+    "simulate": true,
+    "reflect": true,
+    "reflect_threshold": 1.0,
+    "solved_at": 1.0,
+    "seed": 7,
+    "evaluation": "before",
+    "beam": 2
+  },
+  "policy": {
+    "kind": "mock",
+    "name": "MockLLM",
+    "model": null,
+    "seed": 7,
+    "calls": 5,
+    "tokens": 724,
+    "tokens_are_estimated": true,
+    "sampling": "independent"
+  },
+  "result": {
+    "solved": false,
+    "best_reward": 0.0,
+    "best_node": 16,
+    "best_path": [
+      0,
+      4,
+      8,
+      16
+    ],
+    "nodes": 21,
+    "iterations_run": 3,
+    "stopped_because": "the depth limit was reached",
+    "reflections": [],
+    "missed": []
+  },
+  "nodes": [
+    {
+      "id": 0,
+      "parent": null,
+      "depth": 0,
+      "label": "root",
+      "action": null,
+      "observation": null,
+      "detail": {},
+      "terminal": false,
+      "created_at": 0
+    },
+    {
+      "id": 1,
+      "parent": 0,
+      "depth": 1,
+      "label": "2 / 8",
+      "action": "2 / 8 = 1/4",
+      "observation": "2 / 8 = 1/4. Left to combine: 5, 11, 1/4.",
+      "detail": {
+        "steps": [
+          "2 / 8 = 1/4"
+        ],
+        "remaining": [
+          "5",
+          "11",
+          "1/4"
+        ]
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 2,
+      "parent": 0,
+      "depth": 1,
+      "label": "2 * 5",
+      "action": "2 * 5 = 10",
+      "observation": "2 * 5 = 10. Left to combine: 8, 10, 11.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10"
+        ],
+        "remaining": [
+          "8",
+          "10",
+          "11"
+        ]
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 3,
+      "parent": 0,
+      "depth": 1,
+      "label": "5 * 8",
+      "action": "5 * 8 = 40",
+      "observation": "5 * 8 = 40. Left to combine: 2, 11, 40.",
+      "detail": {
+        "steps": [
+          "5 * 8 = 40"
+        ],
+        "remaining": [
+          "2",
+          "11",
+          "40"
+        ]
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 4,
+      "parent": 0,
+      "depth": 1,
+      "label": "5 - 2",
+      "action": "5 - 2 = 3",
+      "observation": "5 - 2 = 3. Left to combine: 3, 8, 11.",
+      "detail": {
+        "steps": [
+          "5 - 2 = 3"
+        ],
+        "remaining": [
+          "3",
+          "8",
+          "11"
+        ]
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 5,
+      "parent": 0,
+      "depth": 1,
+      "label": "5 + 8",
+      "action": "5 + 8 = 13",
+      "observation": "5 + 8 = 13. Left to combine: 2, 11, 13.",
+      "detail": {
+        "steps": [
+          "5 + 8 = 13"
+        ],
+        "remaining": [
+          "2",
+          "11",
+          "13"
+        ]
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 6,
+      "parent": 4,
+      "depth": 2,
+      "label": "3 + 11",
+      "action": "3 + 11 = 14",
+      "observation": "3 + 11 = 14. Left to combine: 8, 14.",
+      "detail": {
+        "steps": [
+          "5 - 2 = 3",
+          "3 + 11 = 14"
+        ],
+        "remaining": [
+          "8",
+          "14"
+        ]
+      },
+      "terminal": false,
+      "created_at": 4
+    },
+    {
+      "id": 7,
+      "parent": 4,
+      "depth": 2,
+      "label": "3 + 8",
+      "action": "3 + 8 = 11",
+      "observation": "3 + 8 = 11. Left to combine: 11, 11.",
+      "detail": {
+        "steps": [
+          "5 - 2 = 3",
+          "3 + 8 = 11"
+        ],
+        "remaining": [
+          "11",
+          "11"
+        ]
+      },
+      "terminal": false,
+      "created_at": 4
+    },
+    {
+      "id": 8,
+      "parent": 4,
+      "depth": 2,
+      "label": "11 - 3",
+      "action": "11 - 3 = 8",
+      "observation": "11 - 3 = 8. Left to combine: 8, 8.",
+      "detail": {
+        "steps": [
+          "5 - 2 = 3",
+          "11 - 3 = 8"
+        ],
+        "remaining": [
+          "8",
+          "8"
+        ]
+      },
+      "terminal": false,
+      "created_at": 4
+    },
+    {
+      "id": 9,
+      "parent": 4,
+      "depth": 2,
+      "label": "3 - 11",
+      "action": "3 - 11 = -8",
+      "observation": "3 - 11 = -8. Left to combine: -8, 8.",
+      "detail": {
+        "steps": [
+          "5 - 2 = 3",
+          "3 - 11 = -8"
+        ],
+        "remaining": [
+          "-8",
+          "8"
+        ]
+      },
+      "terminal": false,
+      "created_at": 4
+    },
+    {
+      "id": 10,
+      "parent": 2,
+      "depth": 2,
+      "label": "8 + 10",
+      "action": "8 + 10 = 18",
+      "observation": "8 + 10 = 18. Left to combine: 11, 18.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10",
+          "8 + 10 = 18"
+        ],
+        "remaining": [
+          "11",
+          "18"
+        ]
+      },
+      "terminal": false,
+      "created_at": 5
+    },
+    {
+      "id": 11,
+      "parent": 2,
+      "depth": 2,
+      "label": "8 - 10",
+      "action": "8 - 10 = -2",
+      "observation": "8 - 10 = -2. Left to combine: -2, 11.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10",
+          "8 - 10 = -2"
+        ],
+        "remaining": [
+          "-2",
+          "11"
+        ]
+      },
+      "terminal": false,
+      "created_at": 5
+    },
+    {
+      "id": 12,
+      "parent": 2,
+      "depth": 2,
+      "label": "8 - 11",
+      "action": "8 - 11 = -3",
+      "observation": "8 - 11 = -3. Left to combine: -3, 10.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10",
+          "8 - 11 = -3"
+        ],
+        "remaining": [
+          "-3",
+          "10"
+        ]
+      },
+      "terminal": false,
+      "created_at": 5
+    },
+    {
+      "id": 13,
+      "parent": 2,
+      "depth": 2,
+      "label": "11 - 10",
+      "action": "11 - 10 = 1",
+      "observation": "11 - 10 = 1. Left to combine: 1, 8.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10",
+          "11 - 10 = 1"
+        ],
+        "remaining": [
+          "1",
+          "8"
+        ]
+      },
+      "terminal": false,
+      "created_at": 5
+    },
+    {
+      "id": 14,
+      "parent": 2,
+      "depth": 2,
+      "label": "10 - 8",
+      "action": "10 - 8 = 2",
+      "observation": "10 - 8 = 2. Left to combine: 2, 11.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10",
+          "10 - 8 = 2"
+        ],
+        "remaining": [
+          "2",
+          "11"
+        ]
+      },
+      "terminal": false,
+      "created_at": 5
+    },
+    {
+      "id": 15,
+      "parent": 8,
+      "depth": 3,
+      "label": "8 + 8",
+      "action": "8 + 8 = 16",
+      "observation": "8 + 8 = 16. Final value 16 - that is not 24.",
+      "detail": {
+        "steps": [
+          "5 - 2 = 3",
+          "11 - 3 = 8",
+          "8 + 8 = 16"
+        ],
+        "final": "16",
+        "target": 24,
+        "expression": "5 - 2 = 3 ; 11 - 3 = 8 ; 8 + 8 = 16"
+      },
+      "terminal": true,
+      "created_at": 8
+    },
+    {
+      "id": 16,
+      "parent": 8,
+      "depth": 3,
+      "label": "8 / 8",
+      "action": "8 / 8 = 1",
+      "observation": "8 / 8 = 1. Final value 1 - that is not 24.",
+      "detail": {
+        "steps": [
+          "5 - 2 = 3",
+          "11 - 3 = 8",
+          "8 / 8 = 1"
+        ],
+        "final": "1",
+        "target": 24,
+        "expression": "5 - 2 = 3 ; 11 - 3 = 8 ; 8 / 8 = 1"
+      },
+      "terminal": true,
+      "created_at": 8
+    },
+    {
+      "id": 17,
+      "parent": 8,
+      "depth": 3,
+      "label": "8 * 8",
+      "action": "8 * 8 = 64",
+      "observation": "8 * 8 = 64. Final value 64 - that is not 24.",
+      "detail": {
+        "steps": [
+          "5 - 2 = 3",
+          "11 - 3 = 8",
+          "8 * 8 = 64"
+        ],
+        "final": "64",
+        "target": 24,
+        "expression": "5 - 2 = 3 ; 11 - 3 = 8 ; 8 * 8 = 64"
+      },
+      "terminal": true,
+      "created_at": 8
+    },
+    {
+      "id": 18,
+      "parent": 13,
+      "depth": 3,
+      "label": "8 / 1",
+      "action": "8 / 1 = 8",
+      "observation": "8 / 1 = 8. Final value 8 - that is not 24.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10",
+          "11 - 10 = 1",
+          "8 / 1 = 8"
+        ],
+        "final": "8",
+        "target": 24,
+        "expression": "2 * 5 = 10 ; 11 - 10 = 1 ; 8 / 1 = 8"
+      },
+      "terminal": true,
+      "created_at": 9
+    },
+    {
+      "id": 19,
+      "parent": 13,
+      "depth": 3,
+      "label": "1 + 8",
+      "action": "1 + 8 = 9",
+      "observation": "1 + 8 = 9. Final value 9 - that is not 24.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10",
+          "11 - 10 = 1",
+          "1 + 8 = 9"
+        ],
+        "final": "9",
+        "target": 24,
+        "expression": "2 * 5 = 10 ; 11 - 10 = 1 ; 1 + 8 = 9"
+      },
+      "terminal": true,
+      "created_at": 9
+    },
+    {
+      "id": 20,
+      "parent": 13,
+      "depth": 3,
+      "label": "8 - 1",
+      "action": "8 - 1 = 7",
+      "observation": "8 - 1 = 7. Final value 7 - that is not 24.",
+      "detail": {
+        "steps": [
+          "2 * 5 = 10",
+          "11 - 10 = 1",
+          "8 - 1 = 7"
+        ],
+        "final": "7",
+        "target": 24,
+        "expression": "2 * 5 = 10 ; 11 - 10 = 1 ; 8 - 1 = 7"
+      },
+      "terminal": true,
+      "created_at": 9
+    }
+  ],
+  "steps": [
+    {
+      "index": 0,
+      "op": "init",
+      "iteration": 0,
+      "title": "Root",
+      "summary": "Game of 24. Tree of Thoughts searches breadth-first, keeping the best few states at each depth by the policy's own grade; reward is 1 if the final value is exactly 24 and every number was used once, else 0.",
+      "detail": {
+        "task": {
+          "id": "game-of-24",
+          "family": "game",
+          "title": "Game of 24",
+          "prompt": "Use 2, 5, 8, 11 exactly once each, with + - * / and any bracketing, to make 24.",
+          "reward": "1 if the final value is exactly 24 and every number was used once, else 0",
+          "context": {
+            "Numbers": [
+              "2",
+              "5",
+              "8",
+              "11"
+            ]
+          }
+        },
+        "config": {
+          "n": 5,
+          "w": 1.0,
+          "lambda": 0.5,
+          "iterations": 12,
+          "max_depth": 3,
+          "simulate": true,
+          "reflect": true,
+          "reflect_threshold": 1.0,
+          "solved_at": 1.0,
+          "seed": 7,
+          "evaluation": "before",
+          "beam": 2
+        }
+      },
+      "focus": [
+        0
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 0,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 1,
+      "op": "expansion",
+      "iteration": 1,
+      "title": "Expansion",
+      "summary": "5 samples from #0 reached 5 distinct states.",
+      "detail": {
+        "parent": 0,
+        "n": 5,
+        "children": [
+          {
+            "id": 1,
+            "label": "2 / 8",
+            "text": "2 / 8 = 1/4",
+            "observation": "2 / 8 = 1/4. Left to combine: 5, 11, 1/4.",
+            "detail": {
+              "steps": [
+                "2 / 8 = 1/4"
+              ],
+              "remaining": [
+                "5",
+                "11",
+                "1/4"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.15,
+            "rejected": null
+          },
+          {
+            "id": 2,
+            "label": "2 * 5",
+            "text": "2 * 5 = 10",
+            "observation": "2 * 5 = 10. Left to combine: 8, 10, 11.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10"
+              ],
+              "remaining": [
+                "8",
+                "10",
+                "11"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.7,
+            "rejected": null
+          },
+          {
+            "id": 3,
+            "label": "5 * 8",
+            "text": "5 * 8 = 40",
+            "observation": "5 * 8 = 40. Left to combine: 2, 11, 40.",
+            "detail": {
+              "steps": [
+                "5 * 8 = 40"
+              ],
+              "remaining": [
+                "2",
+                "11",
+                "40"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.6,
+            "rejected": null
+          },
+          {
+            "id": 4,
+            "label": "5 - 2",
+            "text": "5 - 2 = 3",
+            "observation": "5 - 2 = 3. Left to combine: 3, 8, 11.",
+            "detail": {
+              "steps": [
+                "5 - 2 = 3"
+              ],
+              "remaining": [
+                "3",
+                "8",
+                "11"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.9,
+            "rejected": null
+          },
+          {
+            "id": 5,
+            "label": "5 + 8",
+            "text": "5 + 8 = 13",
+            "observation": "5 + 8 = 13. Left to combine: 2, 11, 13.",
+            "detail": {
+              "steps": [
+                "5 + 8 = 13"
+              ],
+              "remaining": [
+                "2",
+                "11",
+                "13"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.7,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 151,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "4": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 2,
+      "op": "evaluation",
+      "iteration": 1,
+      "title": "Evaluation",
+      "summary": "Each state is valued by the policy's own grade of the step that made it, given before the step ran. Tree of Thoughts has no environment to ask.",
+      "detail": {
+        "lam": 1.0,
+        "timing": "before",
+        "scores": [
+          {
+            "id": 1,
+            "label": "2 / 8",
+            "prior": 0.15,
+            "lm": 0.15,
+            "sc": 0.0,
+            "value": 0.15,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 2,
+            "label": "2 * 5",
+            "prior": 0.7,
+            "lm": 0.7,
+            "sc": 0.0,
+            "value": 0.7,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 3,
+            "label": "5 * 8",
+            "prior": 0.6,
+            "lm": 0.6,
+            "sc": 0.0,
+            "value": 0.6,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 4,
+            "label": "5 - 2",
+            "prior": 0.9,
+            "lm": 0.9,
+            "sc": 0.0,
+            "value": 0.9,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 5,
+            "label": "5 + 8",
+            "prior": 0.7,
+            "lm": 0.7,
+            "sc": 0.0,
+            "value": 0.7,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          }
+        ]
+      },
+      "focus": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 151,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 3,
+      "op": "selection",
+      "iteration": 1,
+      "title": "Beam",
+      "summary": "Keep the 2 best of 5 by value; the other 3 are dropped and never reconsidered.",
+      "detail": {
+        "kind": "beam",
+        "beam": 2,
+        "depth": 1,
+        "ranked": [
+          {
+            "id": 4,
+            "label": "5 - 2",
+            "value": 0.9,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 2,
+            "label": "2 * 5",
+            "value": 0.7,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 5,
+            "label": "5 + 8",
+            "value": 0.7,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 3,
+            "label": "5 * 8",
+            "value": 0.6,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 1,
+            "label": "2 / 8",
+            "value": 0.15,
+            "kept": false,
+            "answer": false
+          }
+        ],
+        "kept": [
+          4,
+          2
+        ],
+        "dropped": [
+          5,
+          3,
+          1
+        ]
+      },
+      "focus": [
+        4,
+        2
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 151,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        }
+      }
+    },
+    {
+      "index": 4,
+      "op": "expansion",
+      "iteration": 2,
+      "title": "Expansion",
+      "summary": "5 samples from #4 reached 4 distinct states.",
+      "detail": {
+        "parent": 4,
+        "n": 5,
+        "children": [
+          {
+            "id": 6,
+            "label": "3 + 11",
+            "text": "3 + 11 = 14",
+            "observation": "3 + 11 = 14. Left to combine: 8, 14.",
+            "detail": {
+              "steps": [
+                "5 - 2 = 3",
+                "3 + 11 = 14"
+              ],
+              "remaining": [
+                "8",
+                "14"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.7,
+            "rejected": null
+          },
+          {
+            "id": 7,
+            "label": "3 + 8",
+            "text": "3 + 8 = 11",
+            "observation": "3 + 8 = 11. Left to combine: 11, 11.",
+            "detail": {
+              "steps": [
+                "5 - 2 = 3",
+                "3 + 8 = 11"
+              ],
+              "remaining": [
+                "11",
+                "11"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 2,
+            "prior": 0.7,
+            "rejected": null
+          },
+          {
+            "id": 8,
+            "label": "11 - 3",
+            "text": "11 - 3 = 8",
+            "observation": "11 - 3 = 8. Left to combine: 8, 8.",
+            "detail": {
+              "steps": [
+                "5 - 2 = 3",
+                "11 - 3 = 8"
+              ],
+              "remaining": [
+                "8",
+                "8"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.9,
+            "rejected": null
+          },
+          {
+            "id": 9,
+            "label": "3 - 11",
+            "text": "3 - 11 = -8",
+            "observation": "3 - 11 = -8. Left to combine: -8, 8.",
+            "detail": {
+              "steps": [
+                "5 - 2 = 3",
+                "3 - 11 = -8"
+              ],
+              "remaining": [
+                "-8",
+                "8"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "path": [
+        0,
+        4
+      ],
+      "tokens": 296,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "7": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "8": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 5,
+      "op": "expansion",
+      "iteration": 2,
+      "title": "Expansion",
+      "summary": "5 samples from #2 reached 5 distinct states.",
+      "detail": {
+        "parent": 2,
+        "n": 5,
+        "children": [
+          {
+            "id": 10,
+            "label": "8 + 10",
+            "text": "8 + 10 = 18",
+            "observation": "8 + 10 = 18. Left to combine: 11, 18.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10",
+                "8 + 10 = 18"
+              ],
+              "remaining": [
+                "11",
+                "18"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.7,
+            "rejected": null
+          },
+          {
+            "id": 11,
+            "label": "8 - 10",
+            "text": "8 - 10 = -2",
+            "observation": "8 - 10 = -2. Left to combine: -2, 11.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10",
+                "8 - 10 = -2"
+              ],
+              "remaining": [
+                "-2",
+                "11"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 12,
+            "label": "8 - 11",
+            "text": "8 - 11 = -3",
+            "observation": "8 - 11 = -3. Left to combine: -3, 10.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10",
+                "8 - 11 = -3"
+              ],
+              "remaining": [
+                "-3",
+                "10"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 13,
+            "label": "11 - 10",
+            "text": "11 - 10 = 1",
+            "observation": "11 - 10 = 1. Left to combine: 1, 8.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10",
+                "11 - 10 = 1"
+              ],
+              "remaining": [
+                "1",
+                "8"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.9,
+            "rejected": null
+          },
+          {
+            "id": 14,
+            "label": "10 - 8",
+            "text": "10 - 8 = 2",
+            "observation": "10 - 8 = 2. Left to combine: 2, 11.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10",
+                "10 - 8 = 2"
+              ],
+              "remaining": [
+                "2",
+                "11"
+              ]
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.9,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "path": [
+        0,
+        2
+      ],
+      "tokens": 442,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "7": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "8": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "10": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "11": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "12": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 6,
+      "op": "evaluation",
+      "iteration": 2,
+      "title": "Evaluation",
+      "summary": "Each state is valued by the policy's own grade of the step that made it, given before the step ran. Tree of Thoughts has no environment to ask.",
+      "detail": {
+        "lam": 1.0,
+        "timing": "before",
+        "scores": [
+          {
+            "id": 6,
+            "label": "3 + 11",
+            "prior": 0.7,
+            "lm": 0.7,
+            "sc": 0.0,
+            "value": 0.7,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 7,
+            "label": "3 + 8",
+            "prior": 0.7,
+            "lm": 0.7,
+            "sc": 0.0,
+            "value": 0.7,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 8,
+            "label": "11 - 3",
+            "prior": 0.9,
+            "lm": 0.9,
+            "sc": 0.0,
+            "value": 0.9,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 9,
+            "label": "3 - 11",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 10,
+            "label": "8 + 10",
+            "prior": 0.7,
+            "lm": 0.7,
+            "sc": 0.0,
+            "value": 0.7,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 11,
+            "label": "8 - 10",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 12,
+            "label": "8 - 11",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 13,
+            "label": "11 - 10",
+            "prior": 0.9,
+            "lm": 0.9,
+            "sc": 0.0,
+            "value": 0.9,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 14,
+            "label": "10 - 8",
+            "prior": 0.9,
+            "lm": 0.9,
+            "sc": 0.0,
+            "value": 0.9,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          }
+        ]
+      },
+      "focus": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 442,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 7,
+      "op": "selection",
+      "iteration": 2,
+      "title": "Beam",
+      "summary": "Keep the 2 best of 9 by value; the other 7 are dropped and never reconsidered.",
+      "detail": {
+        "kind": "beam",
+        "beam": 2,
+        "depth": 2,
+        "ranked": [
+          {
+            "id": 8,
+            "label": "11 - 3",
+            "value": 0.9,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 13,
+            "label": "11 - 10",
+            "value": 0.9,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 14,
+            "label": "10 - 8",
+            "value": 0.9,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 6,
+            "label": "3 + 11",
+            "value": 0.7,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 7,
+            "label": "3 + 8",
+            "value": 0.7,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 10,
+            "label": "8 + 10",
+            "value": 0.7,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 9,
+            "label": "3 - 11",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 11,
+            "label": "8 - 10",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 12,
+            "label": "8 - 11",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          }
+        ],
+        "kept": [
+          8,
+          13
+        ],
+        "dropped": [
+          14,
+          6,
+          7,
+          10,
+          9,
+          11,
+          12
+        ]
+      },
+      "focus": [
+        8,
+        13
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 442,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        }
+      }
+    },
+    {
+      "index": 8,
+      "op": "expansion",
+      "iteration": 3,
+      "title": "Expansion",
+      "summary": "5 samples from #8 reached 3 distinct states.",
+      "detail": {
+        "parent": 8,
+        "n": 5,
+        "children": [
+          {
+            "id": 15,
+            "label": "8 + 8",
+            "text": "8 + 8 = 16",
+            "observation": "8 + 8 = 16. Final value 16 - that is not 24.",
+            "detail": {
+              "steps": [
+                "5 - 2 = 3",
+                "11 - 3 = 8",
+                "8 + 8 = 16"
+              ],
+              "final": "16",
+              "target": 24,
+              "expression": "5 - 2 = 3 ; 11 - 3 = 8 ; 8 + 8 = 16"
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.7,
+            "rejected": null
+          },
+          {
+            "id": 16,
+            "label": "8 / 8",
+            "text": "8 / 8 = 1",
+            "observation": "8 / 8 = 1. Final value 1 - that is not 24.",
+            "detail": {
+              "steps": [
+                "5 - 2 = 3",
+                "11 - 3 = 8",
+                "8 / 8 = 1"
+              ],
+              "final": "1",
+              "target": 24,
+              "expression": "5 - 2 = 3 ; 11 - 3 = 8 ; 8 / 8 = 1"
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 3,
+            "prior": 0.9,
+            "rejected": null
+          },
+          {
+            "id": 17,
+            "label": "8 * 8",
+            "text": "8 * 8 = 64",
+            "observation": "8 * 8 = 64. Final value 64 - that is not 24.",
+            "detail": {
+              "steps": [
+                "5 - 2 = 3",
+                "11 - 3 = 8",
+                "8 * 8 = 64"
+              ],
+              "final": "64",
+              "target": 24,
+              "expression": "5 - 2 = 3 ; 11 - 3 = 8 ; 8 * 8 = 64"
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.6,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        15,
+        16,
+        17
+      ],
+      "path": [
+        0,
+        4,
+        8
+      ],
+      "tokens": 583,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "15": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "16": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "17": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 9,
+      "op": "expansion",
+      "iteration": 3,
+      "title": "Expansion",
+      "summary": "5 samples from #13 reached 3 distinct states.",
+      "detail": {
+        "parent": 13,
+        "n": 5,
+        "children": [
+          {
+            "id": 18,
+            "label": "8 / 1",
+            "text": "8 / 1 = 8",
+            "observation": "8 / 1 = 8. Final value 8 - that is not 24.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10",
+                "11 - 10 = 1",
+                "8 / 1 = 8"
+              ],
+              "final": "8",
+              "target": 24,
+              "expression": "2 * 5 = 10 ; 11 - 10 = 1 ; 8 / 1 = 8"
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 2,
+            "prior": 0.9,
+            "rejected": null
+          },
+          {
+            "id": 19,
+            "label": "1 + 8",
+            "text": "1 + 8 = 9",
+            "observation": "1 + 8 = 9. Final value 9 - that is not 24.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10",
+                "11 - 10 = 1",
+                "1 + 8 = 9"
+              ],
+              "final": "9",
+              "target": 24,
+              "expression": "2 * 5 = 10 ; 11 - 10 = 1 ; 1 + 8 = 9"
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 2,
+            "prior": 0.7,
+            "rejected": null
+          },
+          {
+            "id": 20,
+            "label": "8 - 1",
+            "text": "8 - 1 = 7",
+            "observation": "8 - 1 = 7. Final value 7 - that is not 24.",
+            "detail": {
+              "steps": [
+                "2 * 5 = 10",
+                "11 - 10 = 1",
+                "8 - 1 = 7"
+              ],
+              "final": "7",
+              "target": 24,
+              "expression": "2 * 5 = 10 ; 11 - 10 = 1 ; 8 - 1 = 7"
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.7,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        18,
+        19,
+        20
+      ],
+      "path": [
+        0,
+        2,
+        13
+      ],
+      "tokens": 724,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "15": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "16": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "17": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "18": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "19": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "20": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 10,
+      "op": "evaluation",
+      "iteration": 3,
+      "title": "Evaluation",
+      "summary": "Each state is valued by the policy's own grade of the step that made it, given before the step ran. Tree of Thoughts has no environment to ask.",
+      "detail": {
+        "lam": 1.0,
+        "timing": "before",
+        "scores": [
+          {
+            "id": 15,
+            "label": "8 + 8",
+            "prior": 0.7,
+            "lm": 0.7,
+            "sc": 0.0,
+            "value": 0.7,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 16,
+            "label": "8 / 8",
+            "prior": 0.9,
+            "lm": 0.9,
+            "sc": 0.0,
+            "value": 0.9,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 17,
+            "label": "8 * 8",
+            "prior": 0.6,
+            "lm": 0.6,
+            "sc": 0.0,
+            "value": 0.6,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 18,
+            "label": "8 / 1",
+            "prior": 0.9,
+            "lm": 0.9,
+            "sc": 0.0,
+            "value": 0.9,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 19,
+            "label": "1 + 8",
+            "prior": 0.7,
+            "lm": 0.7,
+            "sc": 0.0,
+            "value": 0.7,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 20,
+            "label": "8 - 1",
+            "prior": 0.7,
+            "lm": 0.7,
+            "sc": 0.0,
+            "value": 0.7,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          }
+        ]
+      },
+      "focus": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 724,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "15": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "16": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "17": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "18": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "19": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "20": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 11,
+      "op": "selection",
+      "iteration": 3,
+      "title": "Beam",
+      "summary": "Keep the 2 best of 6 by value; the other 4 are dropped and never reconsidered.",
+      "detail": {
+        "kind": "beam",
+        "beam": 2,
+        "depth": 3,
+        "ranked": [
+          {
+            "id": 16,
+            "label": "8 / 8",
+            "value": 0.9,
+            "kept": true,
+            "answer": true
+          },
+          {
+            "id": 18,
+            "label": "8 / 1",
+            "value": 0.9,
+            "kept": true,
+            "answer": true
+          },
+          {
+            "id": 15,
+            "label": "8 + 8",
+            "value": 0.7,
+            "kept": false,
+            "answer": true
+          },
+          {
+            "id": 19,
+            "label": "1 + 8",
+            "value": 0.7,
+            "kept": false,
+            "answer": true
+          },
+          {
+            "id": 20,
+            "label": "8 - 1",
+            "value": 0.7,
+            "kept": false,
+            "answer": true
+          },
+          {
+            "id": 17,
+            "label": "8 * 8",
+            "value": 0.6,
+            "kept": false,
+            "answer": true
+          }
+        ],
+        "kept": [
+          16,
+          18
+        ],
+        "dropped": [
+          15,
+          19,
+          20,
+          17
+        ]
+      },
+      "focus": [
+        16,
+        18
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 724,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "15": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        },
+        "16": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "17": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        },
+        "18": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "19": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        },
+        "20": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        }
+      }
+    },
+    {
+      "index": 12,
+      "op": "result",
+      "iteration": 3,
+      "title": "Search over",
+      "summary": "Stopped without solving - the depth limit was reached. Reward 0.",
+      "detail": {
+        "solved": false,
+        "best_reward": 0.0,
+        "best_node": 16,
+        "best_path": [
+          0,
+          4,
+          8,
+          16
+        ],
+        "nodes": 21,
+        "iterations_run": 3,
+        "stopped_because": "the depth limit was reached",
+        "reflections": [],
+        "missed": []
+      },
+      "focus": [
+        0,
+        4,
+        8,
+        16
+      ],
+      "path": [
+        0,
+        4,
+        8,
+        16
+      ],
+      "tokens": 724,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.15,
+          "reward": null,
+          "lm": 0.15,
+          "sc": null,
+          "prior": 0.15,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": null,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": null,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": null,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "15": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": 0.0,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        },
+        "16": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": 0.0,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "17": {
+          "visits": 1,
+          "value": 0.6,
+          "reward": 0.0,
+          "lm": 0.6,
+          "sc": null,
+          "prior": 0.6,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        },
+        "18": {
+          "visits": 1,
+          "value": 0.9,
+          "reward": 0.0,
+          "lm": 0.9,
+          "sc": null,
+          "prior": 0.9,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "19": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": 0.0,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        },
+        "20": {
+          "visits": 1,
+          "value": 0.7,
+          "reward": 0.0,
+          "lm": 0.7,
+          "sc": null,
+          "prior": 0.7,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        }
+      }
+    }
+  ]
+}

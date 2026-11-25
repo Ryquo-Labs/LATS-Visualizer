@@ -82,6 +82,11 @@ class LATSScene(Scene):
     what the timestamps in ``SCRIPT.md`` are calibrated against. A
     ``LATS_BEATS`` render deliberately writes no timing file, so experimenting
     with one beat cannot corrupt the script.
+
+    The holds and run times in the parts are matched, to the frame at 30 fps,
+    to the narrated cut of the video, so the recorded narration drops straight
+    onto a fresh render. That is why some read like ``self.wait(11.04)``:
+    lengthening or shortening any one of them moves every cue after it.
     """
 
     PART: int = 0
@@ -148,13 +153,24 @@ class LATSScene(Scene):
     # -- header -------------------------------------------------------------
 
     def set_header(self, text: str, run_time: float = T_NORM) -> None:
-        """Show or replace the persistent slide heading and its hairline."""
+        """Show or replace the persistent slide heading and its hairline.
+
+        ``run_time=0`` swaps the heading in with a hard cut, no transition.
+        """
         label = txt(text, size=FS_H2, color=INK, weight=MEDIUM)
         cap_width(label, SAFE_R - SAFE_L)
         label.move_to([SAFE_L + label.width / 2, HEADER_Y, 0])
         rule = Line([SAFE_L, RULE_Y, 0], [SAFE_R, RULE_Y, 0],
                     stroke_color=STROKE, stroke_width=2)
         group = VGroup(label, rule)
+
+        if not run_time:
+            if self.header is not None:
+                self.remove(self.header[0])
+                group = VGroup(label, self.header[1])
+            self.header = group
+            self.add(*group)
+            return
 
         if self.header is None:
             self.header = group

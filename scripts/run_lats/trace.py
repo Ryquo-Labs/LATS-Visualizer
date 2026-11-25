@@ -14,13 +14,19 @@ Shape
 
     {
       "schema":  "lats-trace/1",
+      "method":  lats | react | reflexion | tot - which algorithm ran
       "task":    what was being solved, and where the reward comes from
-      "config":  n, w, lambda, depth limits, seed
-      "policy":  which sampler produced the actions, and what it cost
+      "config":  n, w, lambda, depth limits, seed, when LM(s) was taken
+      "policy":  which sampler produced the actions, how, and what it cost
       "result":  solved / best reward / best path / why it stopped
       "nodes":   [ every node, with the fields that never change ]
       "steps":   [ every operation, each carrying a snapshot of what changes ]
     }
+
+``method``, ``config.evaluation`` and ``policy.sampling`` arrived in version
+1.1 of the package. A trace without them was written by 1.0, which scored every
+candidate before executing it and, under a real model, asked for ``n``
+distinct actions in one reply; the viewer labels such traces.
 
 The split between ``nodes`` and ``steps`` is the important part. A node's
 action, observation and parent are written once. Its ``visits``, ``value`` and
@@ -48,10 +54,13 @@ SCHEMA = "lats-trace/1"
 class TraceRecorder:
     """Collects a trace while :class:`~run_lats.search.LATS` runs."""
 
-    def __init__(self, task: Task, config: Config, policy: Any) -> None:
+    def __init__(
+        self, task: Task, config: Config, policy: Any, method: str = "lats"
+    ) -> None:
         self.task = task
         self.config = config
         self.policy = policy
+        self.method = method
         self.nodes: list[dict[str, Any]] = []
         self.steps: list[dict[str, Any]] = []
         self._by_id: dict[int, Node] = {}
@@ -105,18 +114,27 @@ class TraceRecorder:
         )
 
     def _snapshot(self) -> dict[str, dict[str, Any]]:
-        """Everything about the tree that changes as the search runs."""
+        """Everything about the tree that changes as the search runs.
+
+        ``value`` is ``null`` for a node that has not been graded yet - which
+        is every new child between its expansion and its evaluation - and for
+        every node of a method that keeps no value at all.
+        """
         out: dict[str, dict[str, Any]] = {}
         for node_id, node in self._by_id.items():
-            out[str(node_id)] = {
+            state: dict[str, Any] = {
                 "visits": node.visits,
-                "value": round(node.value, 4),
-                "reward": None if node.reward is None else round(node.reward, 4),
-                "lm": None if node.lm_score is None else round(node.lm_score, 4),
-                "sc": None if node.sc_score is None else round(node.sc_score, 4),
+                "value": _r(node.value),
+                "reward": _r(node.reward),
+                "lm": _r(node.lm_score),
+                "sc": _r(node.sc_score),
+                "prior": _r(node.prior),
                 "terminal": node.terminal,
                 "reflected": node.reflection is not None,
             }
+            if self.method == "tot":
+                state["pruned"] = node.pruned
+            out[str(node_id)] = state
         return out
 
     # -- output -------------------------------------------------------------
@@ -124,24 +142,13 @@ class TraceRecorder:
     def to_dict(self, result: dict[str, Any], *, name: str) -> dict[str, Any]:
         from . import __version__
 
-        cfg = self.config
         return {
             "schema": SCHEMA,
             "name": name,
+            "method": self.method,
             "generated_by": {"package": "run_lats", "version": __version__},
             "task": self.task.brief(),
-            "config": {
-                "n": cfg.n,
-                "w": cfg.w,
-                "lambda": cfg.lam,
-                "iterations": cfg.iterations,
-                "max_depth": cfg.max_depth,
-                "simulate": cfg.simulate,
-                "reflect": cfg.reflect,
-                "reflect_threshold": cfg.reflect_threshold,
-                "solved_at": cfg.solved_at,
-                "seed": cfg.seed,
-            },
+            "config": self.config.to_dict(self.method),
             "policy": self.policy.info(),
             "result": result,
             "nodes": self.nodes,
@@ -153,3 +160,7 @@ class TraceRecorder:
         payload = self.to_dict(result, name=name)
         path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         return path
+
+
+def _r(value: float | None) -> float | None:
+    return None if value is None else round(value, 4)

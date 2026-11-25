@@ -5,12 +5,20 @@
  * that grows *and shows you the two terms of UCT fighting over which branch to
  * take* is an explanation. Every number shown here is read from the trace or
  * recomputed from it - none of it is illustrative.
+ *
+ * The same panels serve the baselines. ReAct, Reflexion and Tree of Thoughts
+ * write LATS's operation names for the parts they share, so each panel reads
+ * the trace's method and says what that operation means there - one sample
+ * taken without comparison, a beam that drops what it does not keep, a value
+ * taken before the environment replied.
  */
 
 import { useState } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
+import Collapse from '@mui/material/Collapse'
 import Divider from '@mui/material/Divider'
 import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
@@ -19,10 +27,12 @@ import Typography from '@mui/material/Typography'
 
 import type {
   BackpropDetail,
+  BeamDetail,
   EvaluationDetail,
   ExpansionDetail,
   InitDetail,
   ReflectionDetail,
+  ScoreEntry,
   SelectionDetail,
   SimulationDetail,
   Step,
@@ -30,6 +40,7 @@ import type {
   TraceResult,
 } from '../types'
 import { exploreBonus, num } from '../lib/format'
+import { evaluationOf, isLegacy, methodOf, settingsOf } from '../lib/methods'
 import {
   ACCENT,
   BAD,
@@ -58,13 +69,16 @@ export default function OperationPanel(props: PanelProps) {
     case 'init':
       return <InitPanel {...props} />
     case 'selection':
+      if ((props.step.detail as { kind?: string }).kind === 'beam') {
+        return <BeamPanel {...props} />
+      }
       // Keyed on the step so the w slider resets to what this step actually
       // used, rather than carrying over the last value someone dragged to.
       return <SelectionPanel key={props.step.index} {...props} />
     case 'expansion':
       return <ExpansionPanel {...props} />
     case 'evaluation':
-      return <EvaluationPanel {...props} />
+      return <EvaluationPanel key={props.step.index} {...props} />
     case 'simulation':
       return <SimulationPanel {...props} />
     case 'backpropagation':
@@ -91,7 +105,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   )
 }
 
-function NodeChip({
+export function NodeChip({
   id,
   label,
   color = PRIMARY,
@@ -185,11 +199,29 @@ function Callout({
   )
 }
 
+/** A tag for "the policy's own grade, from before the move ran". */
+function PriorChip({ value }: { value: number }) {
+  return (
+    <Tooltip
+      title="The policy’s grade of its own move, given before the environment ran it. LATS records it but does not use it."
+      arrow
+    >
+      <Chip
+        size="small"
+        variant="outlined"
+        label={`prior ${num(value)}`}
+        sx={{ fontFamily: MONO, color: INK_DIM }}
+      />
+    </Tooltip>
+  )
+}
+
 // -- init --------------------------------------------------------------------
 
 function InitPanel({ trace, step }: PanelProps) {
   const detail = step.detail as unknown as InitDetail
   const context = detail.task?.context ?? {}
+  const method = methodOf(trace)
   return (
     <Stack spacing={1.5}>
       <Typography variant="body2">{detail.task?.prompt}</Typography>
@@ -199,6 +231,18 @@ function InitPanel({ trace, step }: PanelProps) {
         </Typography>
         <Typography variant="body2">{detail.task?.reward}</Typography>
       </Callout>
+      {method.id !== 'lats' && (
+        <Callout color={PRIMARY}>
+          <Typography variant="caption" sx={{ color: PRIMARY, fontWeight: 700 }}>
+            {method.name.toUpperCase()} · {method.cite}
+          </Typography>
+          <Typography variant="body2">{method.blurb}</Typography>
+          <Typography variant="caption" sx={{ display: 'block', color: INK_DIM, mt: 0.5 }}>
+            Same environment, policy and depth limit as the LATS run on this task —
+            the difference is the algorithm. Compare them side by side from the app bar.
+          </Typography>
+        </Callout>
+      )}
       {Object.entries(context).map(([heading, lines]) => (
         <Box key={heading}>
           <SectionLabel>{heading}</SectionLabel>
@@ -217,13 +261,11 @@ function InitPanel({ trace, step }: PanelProps) {
       ))}
       <SectionLabel>Search settings</SectionLabel>
       <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5 }}>
-        <Chip size="small" label={`n = ${trace.config.n}`} />
-        <Chip size="small" label={`w = ${trace.config.w}`} />
-        <Chip size="small" label={`λ = ${trace.config.lambda}`} />
-        <Chip size="small" label={`depth ≤ ${trace.config.max_depth}`} />
-        <Chip size="small" label={`${trace.config.iterations} iterations`} />
-        {!trace.config.simulate && <Chip size="small" label="no simulation" />}
-        {!trace.config.reflect && <Chip size="small" label="no reflection" />}
+        {settingsOf(trace).map((s) => (
+          <Tooltip key={s.label} title={s.title} arrow>
+            <Chip size="small" label={`${s.label} ${s.value}`} />
+          </Tooltip>
+        ))}
       </Stack>
     </Stack>
   )
@@ -376,17 +418,113 @@ function SelectionPanel({ trace, step, onSelect }: PanelProps) {
   )
 }
 
+/** Tree of Thoughts' version of selection: a cut, not a choice. */
+function BeamPanel({ step, onSelect }: PanelProps) {
+  const detail = step.detail as unknown as BeamDetail
+  const max = Math.max(...detail.ranked.map((r) => r.value), 0.001)
+  return (
+    <Stack spacing={1.5}>
+      <Callout color={PRIMARY}>
+        <Mono>keep the {detail.beam} best by V(s); drop the rest</Mono>
+        <Typography variant="caption" sx={{ display: 'block', color: INK_DIM, mt: 0.5 }}>
+          Depth {detail.depth}. What Tree of Thoughts has in place of UCT: no
+          exploration bonus, and nothing dropped here is ever looked at again. A branch
+          the value function underrates is gone at the first cut — compare the UCT
+          bars in the LATS run, where an under-visited branch is owed a bonus.
+        </Typography>
+      </Callout>
+      <Stack spacing={1}>
+        {detail.ranked.map((row) => (
+          <Box key={row.id} sx={{ opacity: row.kept ? 1 : 0.55 }}>
+            <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', mb: 0.4 }}>
+              <NodeChip
+                id={row.id}
+                label={row.label}
+                color={row.kept ? ACCENT : INK_FAINT}
+                onSelect={onSelect}
+              />
+              <Box sx={{ flex: 1 }} />
+              <Typography sx={{ fontFamily: MONO, fontSize: '0.78rem' }}>
+                {num(row.value)}
+              </Typography>
+            </Stack>
+            <StackBar
+              max={max}
+              segments={[
+                {
+                  value: row.value,
+                  color: alpha(valueColor(row.value), 0.9),
+                  title: `V(s) = ${num(row.value)}, the policy’s grade from before the step ran`,
+                },
+              ]}
+            />
+            <Typography
+              variant="caption"
+              sx={{ color: row.kept ? ACCENT : INK_FAINT, fontFamily: MONO, fontSize: '0.68rem' }}
+            >
+              {row.kept ? 'kept' : 'dropped for good'}
+              {row.answer && ' · a whole answer'}
+            </Typography>
+          </Box>
+        ))}
+      </Stack>
+    </Stack>
+  )
+}
+
 // -- 2. expansion ------------------------------------------------------------
 
-function ExpansionPanel({ step, onSelect }: PanelProps) {
+function ExpansionPanel({ trace, step, onSelect }: PanelProps) {
   const detail = step.detail as unknown as ExpansionDetail
   const notes = detail.reflections_in_context ?? []
+  const method = methodOf(trace).id
+  const legacy = isLegacy(trace)
+  const agreed = detail.children.some((c) => (c.samples ?? 1) > 1)
+  // SC(s) is a share of the samples that held an action, which is n unless
+  // a real model sent back something unusable.
+  const usable = detail.usable ?? detail.n
+
+  const intro =
+    method === 'react'
+      ? 'ReAct draws one sample and takes it. There is no second candidate, so there is nothing to compare and nothing to grade.'
+      : method === 'reflexion'
+        ? `Trial ${step.iteration}: one sample, taken. Reflexion is ReAct run again from the root, with the notes from earlier trials in its context.`
+        : method === 'tot'
+          ? `${detail.n} samples from node #${detail.parent}, each executed so that the next state exists. Tree of Thoughts values them by the policy’s own grade — the prior — and never by what came back.`
+          : legacy
+            ? `${detail.n} samples drawn from node #${detail.parent}. Samples that reach the same state are one child; how many agreed becomes SC(s).`
+            : `${detail.n} independent samples from node #${detail.parent}. Samples that reach the same state are one child, and the share that agreed becomes SC(s). Every child has been executed; none has been graded yet.`
+
   return (
     <Stack spacing={1.5}>
       <Typography variant="body2" sx={{ color: INK_DIM }}>
-        {detail.n} samples drawn from node #{detail.parent}. Samples that reach the
-        same state are one child; how many agreed becomes SC(s).
+        {intro}
       </Typography>
+
+      {method === 'lats' && legacy && trace.policy.kind !== 'mock' && (
+        <Callout color={ACCENT}>
+          <Typography variant="caption" sx={{ color: ACCENT, fontWeight: 700 }}>
+            SAMPLES COULD NOT AGREE IN THIS RUN
+          </Typography>
+          <Typography variant="body2">
+            Version 1.0 asked the model for {detail.n} distinct actions in one reply, so
+            every child below comes from a single sample and SC(s) is 1/n for each.
+            Version 1.1 draws the samples independently.
+          </Typography>
+        </Callout>
+      )}
+      {usable < detail.n && (
+        <Typography variant="caption" sx={{ color: INK_FAINT }}>
+          {detail.n - usable} of the {detail.n} samples came back with no usable action
+          in them, so the shares below are out of {usable}.
+        </Typography>
+      )}
+      {method === 'lats' && !legacy && !agreed && detail.children.length > 1 && (
+        <Typography variant="caption" sx={{ color: INK_FAINT }}>
+          No two samples agreed this time, so SC(s) will be the same for every child
+          and only LM(s) will separate them.
+        </Typography>
+      )}
 
       {notes.length > 0 && (
         <Callout color={VIOLET}>
@@ -423,7 +561,11 @@ function ExpansionPanel({ step, onSelect }: PanelProps) {
               </Stack>
             ) : (
               <Stack spacing={0.6}>
-                <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
+                <Stack
+                  direction="row"
+                  spacing={0.75}
+                  sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}
+                >
                   <NodeChip
                     id={child.id!}
                     label={child.label}
@@ -431,11 +573,14 @@ function ExpansionPanel({ step, onSelect }: PanelProps) {
                     onSelect={onSelect}
                   />
                   <Box sx={{ flex: 1 }} />
-                  <Chip
-                    size="small"
-                    label={`${child.samples}/${detail.n} samples`}
-                    sx={{ bgcolor: alpha(TEAL, 0.12), color: TEAL }}
-                  />
+                  {child.prior !== undefined && <PriorChip value={child.prior} />}
+                  {method !== 'react' && method !== 'reflexion' && (
+                    <Chip
+                      size="small"
+                      label={`${child.samples}/${usable} samples`}
+                      sx={{ bgcolor: alpha(TEAL, 0.12), color: TEAL }}
+                    />
+                  )}
                 </Stack>
                 {child.text && (
                   <Typography variant="body2" sx={{ color: INK }}>
@@ -444,8 +589,11 @@ function ExpansionPanel({ step, onSelect }: PanelProps) {
                 )}
                 {child.observation && (
                   <Stack direction="row" spacing={0.75} sx={{ alignItems: 'flex-start' }}>
-                    <Typography variant="caption" sx={{ color: TEAL, fontWeight: 700 }}>
-                      ENV
+                    <Typography
+                      variant="caption"
+                      sx={{ color: method === 'tot' ? INK_FAINT : TEAL, fontWeight: 700, flexShrink: 0 }}
+                    >
+                      {method === 'tot' ? 'ENV · UNREAD' : 'ENV'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: INK_DIM }}>
                       {child.observation}
@@ -463,30 +611,129 @@ function ExpansionPanel({ step, onSelect }: PanelProps) {
 
 // -- 3. evaluation -----------------------------------------------------------
 
-function EvaluationPanel({ step, onSelect }: PanelProps) {
+/**
+ * Where V(s) comes from, and - the point the paper makes against Tree of
+ * Thoughts - when. Each child's prior, the policy's own grade from before the
+ * move ran, is printed beside the grade it got after the environment replied,
+ * so what the observation changed is a number on the screen rather than a
+ * claim in a caption.
+ */
+function EvaluationPanel({ trace, step, onSelect }: PanelProps) {
   const detail = step.detail as unknown as EvaluationDetail
+  const method = methodOf(trace).id
+  const legacy = isLegacy(trace)
+  const timing = detail.timing ?? evaluationOf(trace)
+  const after = timing === 'after'
   const lam = detail.lam
+  const [howSc, setHowSc] = useState(false)
+
+  if (method === 'tot') {
+    return (
+      <Stack spacing={1.5}>
+        <Callout color={TEAL}>
+          <Mono>V(s) = the policy’s grade of the step, before it ran</Mono>
+          <Typography variant="caption" sx={{ display: 'block', color: INK_DIM, mt: 0.5 }}>
+            Tree of Thoughts has no environment to consult, so its value is an opinion:
+            how promising the step looked when it was proposed. There is no
+            self-consistency term. Compare the LATS run on this task, where the grade
+            is taken after the reply.
+          </Typography>
+        </Callout>
+        <ScoreRows scores={detail.scores} lam={1} after={false} onSelect={onSelect} tot />
+      </Stack>
+    )
+  }
+
+  const flat =
+    detail.scores.length > 1 && detail.scores.every((s) => s.sc === detail.scores[0].sc)
+
   return (
     <Stack spacing={1.5}>
       <Callout color={TEAL}>
         <Mono>V(s) = λ · LM(s) + (1 − λ) · SC(s)</Mono>
         <Typography variant="caption" sx={{ display: 'block', color: INK_DIM, mt: 0.5 }}>
-          λ = {lam}. LM(s) is the model grading its own idea; SC(s) is how many of
-          the samples agreed. Both are computed <em>after</em> the environment has
-          replied — that ordering is what separates LATS from Tree of Thoughts.
+          λ = {lam}.{' '}
+          {after ? (
+            <>
+              LM(s) is a separate grading call, made <em>after</em> the environment
+              replied, from the state with that reply in it. The prior beside it is the
+              policy’s own grade from before the move ran — it is not part of V(s); it is
+              there so you can see what the observation changed. That ordering is what
+              separates LATS from Tree of Thoughts.
+            </>
+          ) : (
+            <>
+              LM(s) in this run is the policy’s grade of each move from <em>before</em> it
+              ran. SC(s) is the share of the samples that agreed.
+            </>
+          )}
         </Typography>
       </Callout>
 
-      <Stack spacing={1.1}>
-        {detail.scores.map((score) => (
+      {!after && (
+        <Alert severity="warning" variant="outlined">
+          {legacy
+            ? 'Recorded by version 1.0 of the generator, which scored every candidate before executing it. LATS takes the value after the environment replies, so this run is a simplified variant: read these bars as opinions, not observations.'
+            : 'Ablation: the value here is taken before the environment replied, the Tree-of-Thoughts ordering. Load the same task without the ablation to see what reading the reply changes.'}
+        </Alert>
+      )}
+
+      <ScoreRows scores={detail.scores} lam={lam} after={after} onSelect={onSelect} />
+
+      {detail.scores.some((s) => s.reward !== null && s.reward !== undefined) && (
+        <Typography variant="caption" sx={{ color: INK_FAINT }}>
+          Where both are present, compare the bar against the environment number.
+          The gap between them is exactly what backpropagation is about to correct.
+        </Typography>
+      )}
+
+      <Box>
+        <Button
+          size="small"
+          onClick={() => setHowSc((o) => !o)}
+          sx={{ px: 0.5, minWidth: 0, color: INK_DIM, fontSize: '0.75rem' }}
+        >
+          {howSc ? 'Hide' : 'How is SC(s) counted?'}
+        </Button>
+        <Collapse in={howSc}>
+          <Typography variant="caption" component="div" sx={{ color: INK_DIM, mt: 0.5 }}>
+            The n samples are independent draws from the same prompt. They are grouped by
+            the state they reach, and SC(s) is the share of the usable samples in a
+            child’s group — two of three agreeing is 0.67. Agreement is the signal: a
+            policy that keeps proposing the same move is more often right
+            (self-consistency, Wang et al., ICLR 2023). If the samples are forced to
+            differ — as version 1.0 forced a real model to, by asking for n distinct
+            actions in one reply — every group has one member, every SC(s) is 1/n, and
+            the term adds the same constant to every sibling.
+            {flat && ' In this step every child has the same SC(s), so only LM(s) separates them.'}
+          </Typography>
+        </Collapse>
+      </Box>
+    </Stack>
+  )
+}
+
+function ScoreRows({
+  scores,
+  lam,
+  after,
+  onSelect,
+  tot,
+}: {
+  scores: ScoreEntry[]
+  lam: number
+  after: boolean
+  onSelect: (id: number) => void
+  tot?: boolean
+}) {
+  return (
+    <Stack spacing={1.25}>
+      {scores.map((score) => {
+        const shift = after && score.prior !== undefined ? score.lm - score.prior : null
+        return (
           <Box key={score.id}>
             <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', mb: 0.4 }}>
-              <NodeChip
-                id={score.id}
-                label={score.label}
-                color={TEAL}
-                onSelect={onSelect}
-              />
+              <NodeChip id={score.id} label={score.label} color={TEAL} onSelect={onSelect} />
               <Box sx={{ flex: 1 }} />
               <Typography sx={{ fontFamily: MONO, fontSize: '0.78rem' }}>
                 {num(score.value)}
@@ -494,26 +741,60 @@ function EvaluationPanel({ step, onSelect }: PanelProps) {
             </Stack>
             <StackBar
               max={1}
-              segments={[
-                {
-                  value: lam * score.lm,
-                  color: alpha(PRIMARY, 0.85),
-                  title: `λ·LM = ${lam} × ${num(score.lm)} = ${num(lam * score.lm)}`,
-                },
-                {
-                  value: (1 - lam) * score.sc,
-                  color: alpha(TEAL, 0.85),
-                  title: `(1−λ)·SC = ${num(1 - lam)} × ${num(score.sc)} = ${num((1 - lam) * score.sc)}`,
-                },
-              ]}
+              segments={
+                tot
+                  ? [
+                      {
+                        value: score.value,
+                        color: alpha(PRIMARY, 0.85),
+                        title: `V = prior = ${num(score.value)}`,
+                      },
+                    ]
+                  : [
+                      {
+                        value: lam * score.lm,
+                        color: alpha(PRIMARY, 0.85),
+                        title: `λ·LM = ${lam} × ${num(score.lm)} = ${num(lam * score.lm)}`,
+                      },
+                      {
+                        value: (1 - lam) * score.sc,
+                        color: alpha(TEAL, 0.85),
+                        title: `(1−λ)·SC = ${num(1 - lam)} × ${num(score.sc)} = ${num((1 - lam) * score.sc)}`,
+                      },
+                    ]
+              }
             />
-            <Stack direction="row" spacing={1} sx={{ mt: 0.3 }}>
-              <Typography variant="caption" sx={{ color: PRIMARY, fontFamily: MONO }}>
-                LM {num(score.lm)}
-              </Typography>
-              <Typography variant="caption" sx={{ color: TEAL, fontFamily: MONO }}>
-                SC {num(score.sc)}
-              </Typography>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ mt: 0.3, alignItems: 'baseline', flexWrap: 'wrap', rowGap: 0.25 }}
+            >
+              {shift !== null ? (
+                <Typography variant="caption" sx={{ fontFamily: MONO }}>
+                  <Box component="span" sx={{ color: INK_FAINT }}>
+                    prior {num(score.prior)} →{' '}
+                  </Box>
+                  <Box component="span" sx={{ color: PRIMARY }}>
+                    LM {num(score.lm)}
+                  </Box>
+                  {Math.abs(shift) >= 0.005 && (
+                    <Box component="span" sx={{ color: shift > 0 ? GOOD : BAD }}>
+                      {' '}
+                      {shift > 0 ? '▲' : '▼'}
+                      {num(Math.abs(shift))}
+                    </Box>
+                  )}
+                </Typography>
+              ) : (
+                <Typography variant="caption" sx={{ color: PRIMARY, fontFamily: MONO }}>
+                  {tot ? 'prior' : 'LM'} {num(score.lm)}
+                </Typography>
+              )}
+              {!tot && (
+                <Typography variant="caption" sx={{ color: TEAL, fontFamily: MONO }}>
+                  SC {num(score.sc)}
+                </Typography>
+              )}
               {score.reward !== null && score.reward !== undefined && (
                 <Typography
                   variant="caption"
@@ -523,16 +804,17 @@ function EvaluationPanel({ step, onSelect }: PanelProps) {
                 </Typography>
               )}
             </Stack>
+            {after && score.why && (
+              <Typography
+                variant="caption"
+                sx={{ display: 'block', color: INK_DIM, fontStyle: 'italic', lineHeight: 1.4 }}
+              >
+                {score.why}
+              </Typography>
+            )}
           </Box>
-        ))}
-      </Stack>
-
-      {detail.scores.some((s) => s.reward !== null && s.reward !== undefined) && (
-        <Typography variant="caption" sx={{ color: INK_FAINT }}>
-          Where both are present, compare the bar against the environment number.
-          The gap between them is exactly what backpropagation is about to correct.
-        </Typography>
-      )}
+        )
+      })}
     </Stack>
   )
 }
@@ -542,6 +824,7 @@ function EvaluationPanel({ step, onSelect }: PanelProps) {
 function SimulationPanel({ trace, step, onSelect }: PanelProps) {
   const detail = step.detail as unknown as SimulationDetail
   const byId = new Map(trace.nodes.map((n) => [n.id, n]))
+  const graded = new Map((detail.graded ?? []).map((g) => [g.id, g]))
   return (
     <Stack spacing={1.5}>
       {detail.skipped ? (
@@ -551,25 +834,46 @@ function SimulationPanel({ trace, step, onSelect }: PanelProps) {
       ) : (
         <Typography variant="body2" sx={{ color: INK_DIM }}>
           Not a random playout: LATS descends by highest value, in the real
-          environment, until it reaches a terminal state.
+          environment, until it reaches a terminal state. Every state it creates on the
+          way is executed and then graded, exactly as in the evaluation step.
         </Typography>
       )}
 
       <Stack spacing={0.5}>
-        {detail.rollout.map((id, i) => (
-          <Stack key={id} direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
-            <Typography sx={{ color: INK_FAINT, fontFamily: MONO, width: 16 }}>
-              {i === 0 ? '·' : '↓'}
-            </Typography>
-            <NodeChip
-              id={id}
-              label={byId.get(id)?.label}
-              color={i === detail.rollout.length - 1 ? ACCENT : PRIMARY}
-              onSelect={onSelect}
-            />
-          </Stack>
-        ))}
+        {detail.rollout.map((id, i) => {
+          const g = graded.get(id)
+          return (
+            <Stack key={id} direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
+              <Typography sx={{ color: INK_FAINT, fontFamily: MONO, width: 16 }}>
+                {i === 0 ? '·' : '↓'}
+              </Typography>
+              <NodeChip
+                id={id}
+                label={byId.get(id)?.label}
+                color={i === detail.rollout.length - 1 ? ACCENT : PRIMARY}
+                onSelect={onSelect}
+              />
+              {g && (
+                <Tooltip title={g.why ?? ''} arrow>
+                  <Typography
+                    variant="caption"
+                    sx={{ fontFamily: MONO, color: valueColor(g.value) }}
+                  >
+                    V {num(g.value)}
+                  </Typography>
+                </Tooltip>
+              )}
+            </Stack>
+          )
+        })}
       </Stack>
+
+      {graded.size > 0 && (
+        <Typography variant="caption" sx={{ color: INK_FAINT }}>
+          {graded.size} state{graded.size === 1 ? '' : 's'} created and graded along the
+          way; the descent took the best-valued child at each depth.
+        </Typography>
+      )}
 
       {detail.truncated && (
         <Alert severity="warning" variant="outlined">
@@ -614,12 +918,14 @@ function BackpropPanel({ trace, step, onSelect }: PanelProps) {
             <Stack
               key={update.id}
               direction="row"
-             
               spacing={1}
-              sx={{ alignItems: 'center', border: `1px solid ${STROKE}`,
+              sx={{
+                alignItems: 'center',
+                border: `1px solid ${STROKE}`,
                 borderRadius: 1,
                 px: 1,
-                py: 0.6, }}
+                py: 0.6,
+              }}
             >
               <NodeChip
                 id={update.id}
@@ -666,12 +972,24 @@ function BackpropPanel({ trace, step, onSelect }: PanelProps) {
 function ReflectionPanel({ trace, step, onSelect }: PanelProps) {
   const detail = step.detail as unknown as ReflectionDetail
   const byId = new Map(trace.nodes.map((n) => [n.id, n]))
+  const reflexion = methodOf(trace).id === 'reflexion'
+  const author = (detail as { by?: string }).by
   return (
     <Stack spacing={1.5}>
       <Typography variant="body2" sx={{ color: INK_DIM }}>
-        The one operation with no counterpart in AlphaGo-style MCTS. A scalar says{' '}
-        <em>how bad</em>; a reflection says <em>why</em>, in words, and those words go
-        back into the prompt.
+        {reflexion ? (
+          <>
+            Reflexion’s only memory. With no tree and no value, this note is everything
+            one trial can pass to the next — it says <em>why</em> in words, and the words
+            go back into the prompt.
+          </>
+        ) : (
+          <>
+            The one operation with no counterpart in AlphaGo-style MCTS. A scalar says{' '}
+            <em>how bad</em>; a reflection says <em>why</em>, in words, and those words go
+            back into the prompt.
+          </>
+        )}
       </Typography>
 
       <Callout color={VIOLET}>
@@ -698,7 +1016,10 @@ function ReflectionPanel({ trace, step, onSelect }: PanelProps) {
 
       <Typography variant="caption" sx={{ color: INK_FAINT }}>
         {detail.total_notes} note{detail.total_notes === 1 ? '' : 's'} now in context
-        for every later expansion.
+        for every later {reflexion ? 'trial' : 'expansion'}.{' '}
+        {author === 'you'
+          ? 'You wrote this one.'
+          : 'Written by the task from the environment’s own output — a template, not a model.'}
       </Typography>
     </Stack>
   )
@@ -709,6 +1030,8 @@ function ReflectionPanel({ trace, step, onSelect }: PanelProps) {
 function ResultPanel({ trace, step, onSelect }: PanelProps) {
   const detail = step.detail as unknown as TraceResult
   const byId = new Map(trace.nodes.map((n) => [n.id, n]))
+  const method = methodOf(trace).id
+  const missed = detail.missed ?? []
   return (
     <Stack spacing={1.5}>
       <Alert
@@ -721,19 +1044,51 @@ function ResultPanel({ trace, step, onSelect }: PanelProps) {
           : `Not solved — ${detail.stopped_because}.`}
       </Alert>
 
+      {missed.length > 0 && (
+        <Callout color={ACCENT}>
+          <Typography variant="caption" sx={{ color: ACCENT, fontWeight: 700 }}>
+            A CORRECT ANSWER WAS IN THE TREE
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 0.5 }}>
+            Tree of Thoughts generated it and returned something else: it ranked states by
+            the policy’s opinion, and the environment’s verdict was read only for the
+            answer it returned. Every verdict is shown on the tree now.
+          </Typography>
+          <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5, mt: 0.75 }}>
+            {missed.map((id) => (
+              <NodeChip key={id} id={id} label={byId.get(id)?.label} color={GOOD} onSelect={onSelect} />
+            ))}
+          </Stack>
+        </Callout>
+      )}
+
       <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5 }}>
-        <Chip size="small" label={`${detail.iterations_run} iterations`} />
-        <Chip size="small" label={`${detail.nodes} nodes`} />
         <Chip
           size="small"
-          label={`${trace.policy.tokens.toLocaleString()} tokens${trace.policy.tokens_are_estimated ? ' (est.)' : ''}`}
+          label={
+            method === 'react'
+              ? 'one trajectory'
+              : method === 'reflexion'
+                ? `${detail.iterations_run} trial${detail.iterations_run === 1 ? '' : 's'}`
+                : method === 'tot'
+                  ? `${detail.iterations_run} depth${detail.iterations_run === 1 ? '' : 's'}`
+                  : `${detail.iterations_run} iterations`
+          }
         />
+        <Chip size="small" label={`${detail.nodes} nodes`} />
+        {/* A played session spends no tokens worth estimating. */}
+        {trace.policy.tokens > 0 && (
+          <Chip
+            size="small"
+            label={`${trace.policy.tokens.toLocaleString()} tokens${trace.policy.tokens_are_estimated ? ' (est.)' : ''}`}
+          />
+        )}
         <Chip size="small" label={`${trace.policy.calls} policy calls`} />
       </Stack>
 
       {detail.best_path.length > 0 && (
         <>
-          <SectionLabel>Best trajectory</SectionLabel>
+          <SectionLabel>{method === 'lats' ? 'Best trajectory' : 'Returned trajectory'}</SectionLabel>
           <Stack spacing={0.4}>
             {detail.best_path.map((id, i) => (
               <Stack key={id} direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>

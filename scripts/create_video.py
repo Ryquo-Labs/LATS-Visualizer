@@ -4,6 +4,7 @@ Render the LATS explainer video.
 
     python scripts/create_video.py                  # draft (854x480, 15 fps), for iterating
     python scripts/create_video.py --quality final  # delivery (1920x1080, 30 fps)
+    python scripts/create_video.py --quality 4k     # 4K master (3840x2160, 30 fps)
     python scripts/create_video.py --parts 3 5      # re-render two parts, then re-join
     python scripts/create_video.py --join-only      # rebuild full.mp4 and SCRIPT.md only
     python scripts/create_video.py --script-only    # rewrite SCRIPT.md against the last render

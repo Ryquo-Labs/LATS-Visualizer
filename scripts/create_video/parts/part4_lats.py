@@ -143,8 +143,7 @@ ON_SCREEN = {
                 "the value term boxed in green and the exploration term in "
                 "blue. The equation then moves up and three stacked bar "
                 "columns appear - child A, B and C - with a live w readout. w "
-                "sweeps from zero to one, back, and up again; the crown moves "
-                "from A to C.",
+                "sweeps from zero to one and the crown moves from A to C.",
     "beat_value": "V(s) = λ·LM(s) + (1−λ)·SC(s), each term boxed and glossed, "
                   "with the λ settings underneath. Then two pipelines: Tree "
                   "of Thoughts - propose, score; LATS - propose, run it for "
@@ -258,7 +257,7 @@ class Part4LATS(LATSScene):
         self.wait(1.4)
         self.play(FadeIn(head_r, shift=DOWN * 0.15), run_time=T_FAST)
 
-        holds = [15.4, 11.4, 16.0]
+        holds = [8.9, 11.4, 9.24]
         for i, hold in enumerate(holds):
             self.play(Create(arrows[i]),
                       FadeIn(rights[i], shift=RIGHT * 0.25), run_time=T_NORM)
@@ -335,7 +334,7 @@ class Part4LATS(LATSScene):
         cite = txt("Zhou et al., 2024", size=FS_TINY, color=INK_FAINT)
         cite.next_to(quote, DOWN, buff=0.2)
         self.play(FadeIn(quote, shift=UP * 0.2), FadeIn(cite), run_time=T_NORM)
-        self.wait(13.4)
+        self.wait(6.37)
         self.play(FadeOut(VGroup(scalar, sentence, quote, cite)),
                   run_time=T_NORM)
 
@@ -381,7 +380,7 @@ class Part4LATS(LATSScene):
         self.play(LaggedStart(*[Create(a) for a in arcs], lag_ratio=0.1),
                   run_time=1.2)
         self.play(FadeIn(core), FadeIn(sub), run_time=T_NORM)
-        self.wait(3.2)
+        self.wait(0.4)
 
         # Call out the two that classical MCTS does not have.
         news = VGroup(
@@ -394,7 +393,7 @@ class Part4LATS(LATSScene):
         label.move_to([0, -3.05, 0])
         self.play(Create(news[0]), Create(news[1]),
                   FadeIn(label, shift=UP * 0.2), run_time=T_NORM)
-        self.wait(6.0)
+        self.wait(6.7)
 
         self.clear_body(run_time=T_NORM)
 
@@ -423,7 +422,7 @@ class Part4LATS(LATSScene):
                       stroke_color=GOOD, stroke_width=2)
         self.play(Create(box_v), Create(tick_v),
                   FadeIn(lab_v, shift=UP * 0.15), run_time=T_NORM)
-        self.wait(4.4)
+        self.wait(7.5)
 
         # Term two: exploration.
         box_u = SurroundingRectangle(eq[4], color=PRIMARY, buff=0.14,
@@ -531,18 +530,15 @@ class Part4LATS(LATSScene):
 
         self.play(w_tracker.animate.set_value(1.0), run_time=6.0,
                   rate_func=linear)
-        self.wait(3.4)
-        self.play(w_tracker.animate.set_value(0.0), run_time=2.4,
-                  rate_func=linear)
-        self.play(w_tracker.animate.set_value(1.0), run_time=3.4,
-                  rate_func=linear)
-        self.wait(3.6)
+        self.wait(1.77)
 
+        # The narrated cut sweeps once, then brings the note in with a hard
+        # cut rather than a fade.
         default = txt("The LATS paper\ndefaults to w = 1", size=FS_SMALL,
                       color=INK_FAINT, line_spacing=0.8)
         default.move_to([5.05, -1.6, 0])
-        self.play(FadeIn(default), run_time=T_FAST)
-        self.wait(5.0)
+        self.add(default)
+        self.wait(0.3)
 
         bars.clear_updaters()
         readout[1].clear_updaters()
@@ -582,7 +578,7 @@ class Part4LATS(LATSScene):
                                       corner_radius=0.1, stroke_width=3)
         self.play(Create(box_lm), FadeIn(cards[0], shift=UP * 0.15),
                   run_time=T_NORM)
-        self.wait(7.0)
+        self.wait(5.0)
         self.play(Create(box_sc), FadeIn(cards[1], shift=UP * 0.15),
                   run_time=T_NORM)
         self.wait(5.4)
@@ -657,7 +653,7 @@ class Part4LATS(LATSScene):
                      font_size=52, color=INK)
         eq.move_to([0, 1.75, 0])
         self.play(Write(eq), run_time=1.5)
-        self.wait(7.0)
+        self.wait(1.54)
 
         plain = txt("Old average × old count,  plus the new sample,  "
                     "divided by the new count", size=FS_BODY, color=INK_DIM)
@@ -708,7 +704,7 @@ class Part4LATS(LATSScene):
                       Flash(tree.pos(key), color=ACCENT, line_length=0.18,
                             flash_radius=0.46), run_time=0.7)
             self.wait(0.45)
-        self.wait(6.0)
+        self.wait(0.97)
         self.play(FadeOut(VGroup(eq, tree, reward)), run_time=T_NORM)
 
     # -- 8. Reflection: no equation -----------------------------------------
@@ -749,7 +745,7 @@ class Part4LATS(LATSScene):
                    size=FS_BODY, color=INK)
         dest.move_to([0, -2.95, 0])
         self.play(Create(arrow), FadeIn(dest, shift=UP * 0.15), run_time=T_NORM)
-        self.wait(12.5)
+        self.wait(6.94)
 
-        self.clear_body(run_time=T_NORM)
+        self.clear_body(run_time=0.46)
         self.drop_header()

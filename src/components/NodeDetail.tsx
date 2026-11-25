@@ -16,7 +16,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import CloseIcon from '@mui/icons-material/Close'
 
-import type { NodeState, TraceNode } from '../types'
+import type { NodeState, ScoreEntry, TraceNode } from '../types'
 import { num } from '../lib/format'
 import {
   BAD,
@@ -37,10 +37,12 @@ import {
 interface Props {
   node: TraceNode
   state: NodeState | undefined
+  /** The value function's grade of this node, if one was recorded. */
+  grade?: ScoreEntry
   onClose: () => void
 }
 
-export default function NodeDetail({ node, state, onClose }: Props) {
+export default function NodeDetail({ node, state, grade, onClose }: Props) {
   return (
     <Paper elevation={0} sx={{ p: 1.5, bgcolor: SURFACE_2 }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
@@ -59,10 +61,18 @@ export default function NodeDetail({ node, state, onClose }: Props) {
           <>
             <Chip
               size="small"
-              label={`V ${num(state.value)}`}
-              sx={{ color: valueColor(state.value) }}
+              label={`V ${state.value === null ? '—' : num(state.value)}`}
+              sx={{ color: state.value === null ? INK_FAINT : valueColor(state.value) }}
             />
             <Chip size="small" label={`N ${state.visits}`} />
+            {state.prior !== null && state.prior !== undefined && (
+              <Chip
+                size="small"
+                variant="outlined"
+                label={`prior ${num(state.prior)}`}
+                title="The policy's grade of this move before it ran. Not part of V(s)."
+              />
+            )}
             {state.lm !== null && <Chip size="small" label={`LM ${num(state.lm)}`} />}
             {state.sc !== null && <Chip size="small" label={`SC ${num(state.sc)}`} />}
             {state.reward !== null && (
@@ -101,6 +111,15 @@ export default function NodeDetail({ node, state, onClose }: Props) {
           <Label>Observation</Label>
           <Typography variant="body2" sx={{ color: TEAL, mb: 1 }}>
             {node.observation}
+          </Typography>
+        </>
+      )}
+
+      {grade?.why && (
+        <>
+          <Label>Why it was graded {num(grade.lm)}</Label>
+          <Typography variant="body2" sx={{ color: INK_DIM, mb: 1, fontStyle: 'italic' }}>
+            {grade.why}
           </Typography>
         </>
       )}

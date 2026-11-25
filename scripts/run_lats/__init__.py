@@ -19,31 +19,43 @@ against a real environment and to record what it did.
 
 The module layout:
 
-``types``    the vocabulary - actions, observations, nodes, config
-``tasks/``   the environments, which own the state and the reward
-``llm``      the policies: a deterministic offline mock, and a real OpenAI call
-``search``   the six operations
-``trace``    the replayable recording the browser demo reads
+``types``      the vocabulary - actions, observations, grades, nodes, config
+``tasks/``     the environments, which own the state and the reward
+``llm``        the policies: a deterministic offline mock, and a real OpenAI call
+``search``     the six operations
+``baselines``  ReAct, Reflexion and Tree of Thoughts, for comparison
+``trace``      the replayable recording the browser demo reads
+
+Version 1.1 moved ``LM(s)`` to a separate grading call made after the
+environment replies, and made a real model's ``n`` samples independent draws.
+Traces written by 1.0 carry neither change; the viewer says so when it opens
+one.
 """
 
+from .baselines import METHODS, ReAct, Reflexion, TreeOfThoughts
 from .search import LATS, backpropagate, uct
 from .tasks import TASKS, Task
 from .trace import SCHEMA, TraceRecorder
-from .types import Action, Config, Node, Observation, Proposal
+from .types import Action, Config, Grade, Node, Observation, Proposal
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 __all__ = [
     "LATS",
+    "METHODS",
     "Action",
     "Config",
+    "Grade",
     "Node",
     "Observation",
     "Proposal",
+    "ReAct",
+    "Reflexion",
     "SCHEMA",
     "TASKS",
     "Task",
     "TraceRecorder",
+    "TreeOfThoughts",
     "backpropagate",
     "uct",
     "__version__",

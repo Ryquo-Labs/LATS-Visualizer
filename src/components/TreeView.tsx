@@ -28,6 +28,11 @@
  * value-coloured tile once even that will not fit. Detail is given up one piece
  * at a time; nothing about the tree ever blanks all at once.
  *
+ * A node with no value yet - a child the environment has replied to but the
+ * evaluation step has not graded - is drawn in the neutral edge colour, not as
+ * a red zero, and so is every node of a method that keeps no value at all.
+ * A state Tree of Thoughts dropped from its beam is drawn dashed.
+ *
  * Every colour reaches the SVG through `style` rather than through `fill` and
  * `stroke` attributes: the palette is a set of CSS variables, and a
  * presentation attribute is not somewhere every browser resolves `var()`.
@@ -50,6 +55,7 @@ import type { Trace } from '../types'
 import type { View } from '../lib/layout'
 import { NODE_H, NODE_W, layoutTree } from '../lib/layout'
 import { num, truncate } from '../lib/format'
+import { methodOf } from '../lib/methods'
 import {
   ACCENT,
   CARD_SHADOW,
@@ -237,6 +243,9 @@ export default function TreeView({
     [size.w, size.h],
   )
 
+  /** Whether this method keeps a value at all; ReAct and Reflexion do not. */
+  const valued = methodOf(trace).valued
+
   // Following by default; the user's own camera wins the moment there is one.
   const cam = free && camera ? camera : frame(subject)
   const detailed = cam.scale >= DETAIL_SCALE
@@ -415,10 +424,13 @@ export default function TreeView({
             const focused = view.focus.has(node.id)
             const onPath = view.path.includes(node.id)
             const isSelected = selected === node.id
-            const color = valueColor(state.value)
+            const value = state.value
+            const color = value === null ? EDGE : valueColor(value)
+            const filled = Math.min(value ?? 0, 1)
             const solved =
               state.reward !== null && state.reward >= trace.config.solved_at
-            const opacity = !dimmed || focused || onPath ? 1 : 0.42
+            const pruned = !!state.pruned
+            const opacity = (!dimmed || focused || onPath ? 1 : 0.42) * (pruned ? 0.6 : 1)
 
             return (
               <g
@@ -435,8 +447,9 @@ export default function TreeView({
                 }}
               >
                 <title>
-                  {`#${node.id} ${node.label}\nV ${num(state.value)}  N ${state.visits}` +
+                  {`#${node.id} ${node.label}\nV ${num(value)}  N ${state.visits}` +
                     (state.reward !== null ? `  reward ${num(state.reward)}` : '') +
+                    (pruned ? '\nDropped by the beam, never reconsidered.' : '') +
                     (node.observation ? `\n${node.observation}` : '')}
                 </title>
 
@@ -446,6 +459,7 @@ export default function TreeView({
                   height={NODE_H}
                   rx={7}
                   strokeWidth={isSelected ? 2.4 : focused ? 2.2 : 1.2}
+                  strokeDasharray={pruned ? '4 3' : undefined}
                   vectorEffect="non-scaling-stroke"
                   style={{
                     fill: alpha(color, labelled ? 0.13 : 0.82),
@@ -460,7 +474,7 @@ export default function TreeView({
                     <rect
                       x={1}
                       y={NODE_H - 4}
-                      width={Math.max(0, (NODE_W - 2) * Math.min(state.value, 1))}
+                      width={Math.max(0, (NODE_W - 2) * filled)}
                       height={3}
                       rx={1.5}
                       style={{ fill: color }}
@@ -475,7 +489,13 @@ export default function TreeView({
                       fontFamily={MONO}
                       style={{ fill: INK_DIM }}
                     >
-                      {`V ${num(state.value)}  N ${state.visits}`}
+                      {value !== null
+                        ? `V ${num(value)}  N ${state.visits}`
+                        : node.parent === null
+                          ? 'start'
+                          : valued
+                            ? `V ?  N ${state.visits}`
+                            : `step ${node.depth}`}
                     </text>
                     <text
                       x={NODE_W - 7}
@@ -520,7 +540,7 @@ export default function TreeView({
                     <rect
                       x={1}
                       y={NODE_H - 4}
-                      width={Math.max(0, (NODE_W - 2) * Math.min(state.value, 1))}
+                      width={Math.max(0, (NODE_W - 2) * filled)}
                       height={3}
                       rx={1.5}
                       style={{ fill: color }}
@@ -649,13 +669,15 @@ export default function TreeView({
         </Typography>
       </Box>
 
-      {size.h >= TIGHT_H && <Legend tight={tight} />}
+      {size.h >= TIGHT_H && <Legend tight={tight} valued={valued} />}
     </Paper>
   )
 }
 
-function Legend({ tight }: { tight: boolean }) {
+function Legend({ tight, valued }: { tight: boolean; valued: boolean }) {
   const stops = [0, 0.25, 0.5, 0.75, 1]
+  // A method with no value function has nothing for the ramp to explain.
+  if (!valued && tight) return null
   return (
     <Stack
       spacing={0.75}
@@ -672,19 +694,25 @@ function Legend({ tight }: { tight: boolean }) {
         py: 0.75,
       }}
     >
-      <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
+      {valued ? (
+        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
+          <Typography variant="caption" sx={{ color: INK_FAINT }}>
+            V(s)
+          </Typography>
+          <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden' }}>
+            {stops.map((s) => (
+              <Box key={s} sx={{ width: tight ? 12 : 16, height: 8, bgcolor: valueColor(s) }} />
+            ))}
+          </Box>
+          <Typography variant="caption" sx={{ color: INK_FAINT }}>
+            0 → 1
+          </Typography>
+        </Stack>
+      ) : (
         <Typography variant="caption" sx={{ color: INK_FAINT }}>
-          V(s)
+          no value function: nodes are not scored
         </Typography>
-        <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden' }}>
-          {stops.map((s) => (
-            <Box key={s} sx={{ width: tight ? 12 : 16, height: 8, bgcolor: valueColor(s) }} />
-          ))}
-        </Box>
-        <Typography variant="caption" sx={{ color: INK_FAINT }}>
-          0 → 1
-        </Typography>
-      </Stack>
+      )}
       {/* The ramp explains the colour every node carries, so it stays; the
           three conventions below it share a row with the zoom controls and
           are the ones that have to go when the canvas is a phone's wide. */}

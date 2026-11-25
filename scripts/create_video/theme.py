@@ -124,16 +124,54 @@ FS_SMALL = 19    # labels, axis ticks
 FS_TINY = 15     # footnotes, citations
 FS_MONO = 18     # code and transcripts
 
+#: How many times larger than Manim asks Pango lays text out; see below.
+TEXT_OVERSAMPLE = 32
+
+
+class OversampledText(Text):
+    """A ``Text`` with even letter spacing.
+
+    Manim asks Pango for ``font_size / 4.8`` points - about 3 pt for a footnote
+    - and Pango, by default and on every platform, rounds each glyph advance to
+    a whole unit at that size. A unit is ~7 px of 1080p video, so the gaps
+    between letters come out several pixels uneven and "proposes" reads as
+    "pro p o se s". Manim 0.22 still does this.
+
+    Laying the text out ``TEXT_OVERSAMPLE`` times larger and scaling it back
+    divides that error by the same factor: at 32 the worst gap is off by
+    ~0.2 px. Size, glyph shapes and the ``font_size`` property are those of a
+    plain ``Text``.
+    """
+
+    def __init__(self, text, *, font_size=DEFAULT_FONT_SIZE, **kw):
+        super().__init__(text, font_size=font_size * TEXT_OVERSAMPLE, **kw)
+        # An explicit height or width is honoured as given; only the default,
+        # font-size-driven scale needs undoing.
+        if kw.get("height") is None and kw.get("width") is None:
+            self.scale(1 / TEXT_OVERSAMPLE)
+
+    def _text2svg(self, color):
+        # Pango wraps lines at, and Cairo sizes its canvas from, the frame's
+        # pixel size. Enlarge both with the type, or long lines would wrap.
+        width, height = config.pixel_width, config.pixel_height
+        config.pixel_width = width * TEXT_OVERSAMPLE
+        config.pixel_height = height * TEXT_OVERSAMPLE
+        try:
+            return super()._text2svg(color)
+        finally:
+            config.pixel_width, config.pixel_height = width, height
+
 
 def txt(s, size=FS_BODY, color=INK, weight=NORMAL, font=None, **kw):
     """Body text with the project's face and defaults applied."""
-    return Text(s, font=font or FONT, font_size=size, color=color,
-                weight=weight, **kw)
+    return OversampledText(s, font=font or FONT, font_size=size, color=color,
+                           weight=weight, **kw)
 
 
 def mono(s, size=FS_MONO, color=INK, **kw):
     """Monospaced text (code, transcripts, tool output)."""
-    return Text(s, font=FONT_MONO, font_size=size, color=color, **kw)
+    return OversampledText(s, font=FONT_MONO, font_size=size, color=color,
+                           **kw)
 
 
 def mathtex(s, size=FS_H2, color=INK, **kw):

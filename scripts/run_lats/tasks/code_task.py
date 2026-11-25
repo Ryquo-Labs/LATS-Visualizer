@@ -12,6 +12,12 @@ complete program, so simulation is skipped and the reward backpropagated is the
 fraction of tests that pass. The tests are run for real, in a subprocess - see
 ``sandbox.py``. None of the pass counts in this file are asserted anywhere;
 they are whatever the interpreter says they are.
+
+This is the task where *when* the value is taken matters most. Before anything
+runs, the one-pass sweep is the model's favourite. Once the tests have run, a
+grader that reads their output can see it is not the best program on the
+table. Compare ``mock_merge-intervals`` with ``mock_merge-intervals_value-before``,
+which grades from the opinion instead of the observation.
 """
 
 from __future__ import annotations
@@ -21,7 +27,7 @@ import random
 import re
 from typing import Any
 
-from ..types import Action, Observation, Proposal
+from ..types import Action, Grade, Observation, Proposal
 from .base import Task
 from .sandbox import run_tests
 
@@ -44,9 +50,9 @@ TESTS = [
 # The candidate bank the offline policy draws from.
 #
 # ``weight`` is how often the sampler picks a candidate - a stand-in for the
-# model's own likelihood - and ``self_eval`` is the score the model would give
-# its own idea before running anything. Both are fiction; that is what makes
-# this a *mock* policy. Everything downstream of them is real.
+# model's own likelihood - and ``prior`` is the score the model would give its
+# own idea before running anything. Both are fiction; that is what makes this a
+# *mock* policy. Everything downstream of them is real.
 # ---------------------------------------------------------------------------
 
 APPROACHES = [
@@ -54,7 +60,7 @@ APPROACHES = [
         "key": "A",
         "label": "one-pass merge",
         "text": "Sweep the list as given and merge each interval into the previous one.",
-        "self_eval": 0.70,
+        "prior": 0.70,
         "weight": 0.45,
         "code": """def merge(iv):
     out = []
@@ -69,7 +75,7 @@ APPROACHES = [
         "key": "B",
         "label": "sort, then sweep",
         "text": "Sort by start first, then merge each interval into the previous one.",
-        "self_eval": 0.62,
+        "prior": 0.62,
         "weight": 0.35,
         "code": """def merge(iv):
     iv = sorted(iv)
@@ -85,7 +91,7 @@ APPROACHES = [
         "key": "C",
         "label": "interval tree",
         "text": "Insert every interval into a binary tree keyed by start, then walk it in order.",
-        "self_eval": 0.35,
+        "prior": 0.35,
         "weight": 0.20,
         "code": """class _N:
     def __init__(self, lo, hi):
@@ -127,7 +133,7 @@ REFINEMENTS: dict[str, list[dict[str, Any]]] = {
         {
             "label": "scan all, not just last",
             "text": "Compare each interval against every interval already emitted, not only the most recent one.",
-            "self_eval": 0.78,
+            "prior": 0.78,
             "weight": 0.40,
             "code": """def merge(iv):
     out = []
@@ -144,7 +150,7 @@ REFINEMENTS: dict[str, list[dict[str, Any]]] = {
         {
             "label": "guard the lower bound",
             "text": "Only merge when the new start also falls at or after the previous start.",
-            "self_eval": 0.66,
+            "prior": 0.66,
             "weight": 0.35,
             "code": """def merge(iv):
     out = []
@@ -158,7 +164,7 @@ REFINEMENTS: dict[str, list[dict[str, Any]]] = {
         {
             "label": "sort the output",
             "text": "Keep the one-pass sweep and sort the result before returning it.",
-            "self_eval": 0.59,
+            "prior": 0.59,
             "weight": 0.25,
             "code": """def merge(iv):
     out = []
@@ -174,7 +180,7 @@ REFINEMENTS: dict[str, list[dict[str, Any]]] = {
         {
             "label": "merge on touch too",
             "text": "Treat intervals that only touch at an endpoint as overlapping: use <= instead of <.",
-            "self_eval": 0.64,
+            "prior": 0.64,
             "weight": 0.34,
             "code": """def merge(iv):
     iv = sorted(iv)
@@ -189,7 +195,7 @@ REFINEMENTS: dict[str, list[dict[str, Any]]] = {
         {
             "label": "widen both ends",
             "text": "Sort by start, and when merging take the min of the starts and the max of the ends.",
-            "self_eval": 0.71,
+            "prior": 0.71,
             "weight": 0.36,
             "code": """def merge(iv):
     iv = sorted(iv, key=lambda p: p[0])
@@ -204,7 +210,7 @@ REFINEMENTS: dict[str, list[dict[str, Any]]] = {
         {
             "label": "sweep in reverse",
             "text": "Sort descending and merge backwards, extending the start of the open interval.",
-            "self_eval": 0.48,
+            "prior": 0.48,
             "weight": 0.30,
             "code": """def merge(iv):
     out = []
@@ -220,7 +226,7 @@ REFINEMENTS: dict[str, list[dict[str, Any]]] = {
         {
             "label": "key on midpoint",
             "text": "Order the intervals by midpoint instead of by start before walking them.",
-            "self_eval": 0.44,
+            "prior": 0.44,
             "weight": 0.5,
             "code": """def merge(iv):
     return [list(p) for p in sorted(iv, key=lambda p: (p[0] + p[1]) / 2)]""",
@@ -228,7 +234,7 @@ REFINEMENTS: dict[str, list[dict[str, Any]]] = {
         {
             "label": "merge on insert",
             "text": "Widen a node in place whenever the interval being inserted overlaps it.",
-            "self_eval": 0.52,
+            "prior": 0.52,
             "weight": 0.5,
             "code": """def merge(iv):
     out = []
@@ -250,6 +256,7 @@ class MergeIntervalsTask(Task):
 
     id = "merge-intervals"
     family = "programming"
+    complete_states = True
     title = "Merge intervals"
     prompt = PROMPT
     reward_desc = "fraction of the five unit tests that pass, measured by running them"
@@ -331,12 +338,41 @@ class MergeIntervalsTask(Task):
                         text=cand["text"],
                         payload={"code": cand["code"], "approach": approach},
                     ),
-                    self_eval=cand["self_eval"],
+                    prior=cand["prior"],
                     rationale=cand["text"],
                     signature=f"{approach}:{cand['label']}",
                 )
             )
         return out
+
+    def mock_evaluate(
+        self,
+        data: dict,
+        observation: Observation,
+        action: Action,
+        prior: float,
+        reflections: list[str],
+    ) -> Grade:
+        """Grade a program from its test report, which a prior never saw.
+
+        Mostly the evidence, partly the model's belief in the approach - a
+        grader that has just watched three of five tests pass still has an
+        opinion about whether the idea is sound. That 30% is what keeps it
+        fallible: an approach it liked going in is marked down more slowly
+        than one it did not.
+        """
+        detail = observation.detail or {}
+        if detail.get("error"):
+            return Grade(0.05, f"The program did not run: {detail['error']}")
+        passed, total = int(detail.get("passed") or 0), int(detail.get("total") or 0)
+        if total and passed >= total:
+            return Grade(0.97, f"All {total} tests pass.")
+        fraction = passed / total if total else 0.0
+        failed = next((r for r in detail.get("results", []) if not r["passed"]), None)
+        why = f"{passed} of {total} tests pass"
+        if failed:
+            why += f"; {failed['call']} returned {failed['got']}"
+        return Grade(round(0.3 * prior + 0.7 * fraction, 3), why + ".")
 
     # -- online policy ------------------------------------------------------
 
@@ -357,11 +393,21 @@ class MergeIntervalsTask(Task):
 
     def action_schema(self) -> str:
         return (
-            'Return JSON: {"candidates": [{"label": "at most five words", '
-            '"text": "one sentence on the idea", "code": "a complete Python '
-            'program defining merge(iv)", "self_eval": 0.0-1.0}]}. Each '
-            "candidate must be a whole program, not a patch."
+            'Return JSON: {"label": "at most five words", "text": "one sentence '
+            'on the idea", "code": "a complete Python program defining '
+            'merge(iv)", "prior": 0.0-1.0}. The program must be whole, not a '
+            "patch. prior is your own estimate, from 0 to 1, that it passes "
+            "every test."
         )
+
+    def signature(self, action: Action) -> str:
+        # Two samples agree when they are the same program, whatever its
+        # spacing and comments: compare syntax trees, not text.
+        code = str(action.payload.get("code", ""))
+        try:
+            return ast.dump(ast.parse(code))
+        except SyntaxError:
+            return re.sub(r"\s+", " ", code.strip())
 
     def parse_action(self, obj: dict, data: dict) -> Action:
         # ``data`` is unused: a candidate program is self-contained.

@@ -1,0 +1,3153 @@
+{
+  "schema": "lats-trace/1",
+  "name": "mock_multihop-qa_tot",
+  "method": "tot",
+  "generated_by": {
+    "package": "run_lats",
+    "version": "1.1.0"
+  },
+  "task": {
+    "id": "multihop-qa",
+    "family": "qa",
+    "title": "Two-hop question answering",
+    "prompt": "LATS adapts an existing tree search algorithm. At which venue, and in which year, was the paper that introduced that algorithm presented?",
+    "reward": "1 if the answer names the gold venue and year, else 0 (an oracle signal)",
+    "context": {
+      "Tools": [
+        "search[term]",
+        "finish[answer]"
+      ],
+      "Corpus": [
+        "Language Agent Tree Search",
+        "Monte Carlo Tree Search",
+        "UCT",
+        "AlphaGo",
+        "Tree of Thoughts",
+        "Reflexion",
+        "Reasoning via Planning",
+        "ReAct"
+      ]
+    }
+  },
+  "config": {
+    "n": 3,
+    "w": 1.0,
+    "lambda": 0.5,
+    "iterations": 8,
+    "max_depth": 4,
+    "simulate": true,
+    "reflect": true,
+    "reflect_threshold": 1.0,
+    "solved_at": 1.0,
+    "seed": 7,
+    "evaluation": "before",
+    "beam": 2
+  },
+  "policy": {
+    "kind": "mock",
+    "name": "MockLLM",
+    "model": null,
+    "seed": 7,
+    "calls": 6,
+    "tokens": 1370,
+    "tokens_are_estimated": true,
+    "sampling": "independent"
+  },
+  "result": {
+    "solved": false,
+    "best_reward": 0.0,
+    "best_node": 12,
+    "best_path": [
+      0,
+      1,
+      5,
+      12
+    ],
+    "nodes": 17,
+    "iterations_run": 4,
+    "stopped_because": "the depth limit was reached",
+    "reflections": [],
+    "missed": [
+      16
+    ]
+  },
+  "nodes": [
+    {
+      "id": 0,
+      "parent": null,
+      "depth": 0,
+      "label": "root",
+      "action": null,
+      "observation": null,
+      "detail": {},
+      "terminal": false,
+      "created_at": 0
+    },
+    {
+      "id": 1,
+      "parent": 0,
+      "depth": 1,
+      "label": "search[UCT]",
+      "action": "search[UCT]",
+      "observation": "UCT: UCT is the selection rule most Monte Carlo Tree Search implementations use. Kocsis and Szepesvari derived it from the UCB1 bandit algorithm and presented it at ECML in 2006.",
+      "detail": {
+        "query": "UCT",
+        "document": "UCT"
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 2,
+      "parent": 0,
+      "depth": 1,
+      "label": "search[Monte Carlo Tree Search]",
+      "action": "search[Monte Carlo Tree Search]",
+      "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+      "detail": {
+        "query": "Monte Carlo Tree Search",
+        "document": "Monte Carlo Tree Search"
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 3,
+      "parent": 0,
+      "depth": 1,
+      "label": "search[Reflexion]",
+      "action": "search[Reflexion]",
+      "observation": "Reflexion: Reflexion turns a failed attempt into a written note that is placed in the next prompt. Shinn and colleagues presented it at NeurIPS in 2023. It reflects, but it does not search.",
+      "detail": {
+        "query": "Reflexion",
+        "document": "Reflexion"
+      },
+      "terminal": false,
+      "created_at": 1
+    },
+    {
+      "id": 4,
+      "parent": 1,
+      "depth": 2,
+      "label": "search[Monte Carlo Tree Search]",
+      "action": "search[Monte Carlo Tree Search]",
+      "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+      "detail": {
+        "query": "Monte Carlo Tree Search",
+        "document": "Monte Carlo Tree Search"
+      },
+      "terminal": false,
+      "created_at": 4
+    },
+    {
+      "id": 5,
+      "parent": 1,
+      "depth": 2,
+      "label": "search[Reasoning via Planning]",
+      "action": "search[Reasoning via Planning]",
+      "observation": "Reasoning via Planning: Reasoning via Planning, or RAP, runs Monte Carlo Tree Search using the language model itself as the world model. Hao and colleagues presented it at EMNLP in 2023.",
+      "detail": {
+        "query": "Reasoning via Planning",
+        "document": "Reasoning via Planning"
+      },
+      "terminal": false,
+      "created_at": 4
+    },
+    {
+      "id": 6,
+      "parent": 1,
+      "depth": 2,
+      "label": "search[AlphaGo]",
+      "action": "search[AlphaGo]",
+      "observation": "AlphaGo: AlphaGo paired Monte Carlo Tree Search with a policy network and a value network. Silver and colleagues published it in Nature in 2016.",
+      "detail": {
+        "query": "AlphaGo",
+        "document": "AlphaGo"
+      },
+      "terminal": false,
+      "created_at": 4
+    },
+    {
+      "id": 7,
+      "parent": 2,
+      "depth": 2,
+      "label": "search[Language Agent Tree Search]",
+      "action": "search[Language Agent Tree Search]",
+      "observation": "Language Agent Tree Search: Language Agent Tree Search, or LATS, was presented at ICML in 2024 by Zhou, Yan, Shlapentokh-Rothman, Wang and Wang. It adapts Monte Carlo Tree Search to language agents, adding a language model value function, real environment feedback, and a reflection step.",
+      "detail": {
+        "query": "Language Agent Tree Search",
+        "document": "Language Agent Tree Search"
+      },
+      "terminal": false,
+      "created_at": 5
+    },
+    {
+      "id": 8,
+      "parent": 2,
+      "depth": 2,
+      "label": "search[Reasoning via Planning]",
+      "action": "search[Reasoning via Planning]",
+      "observation": "Reasoning via Planning: Reasoning via Planning, or RAP, runs Monte Carlo Tree Search using the language model itself as the world model. Hao and colleagues presented it at EMNLP in 2023.",
+      "detail": {
+        "query": "Reasoning via Planning",
+        "document": "Reasoning via Planning"
+      },
+      "terminal": false,
+      "created_at": 5
+    },
+    {
+      "id": 9,
+      "parent": 4,
+      "depth": 3,
+      "label": "search[Reasoning via Planning]",
+      "action": "search[Reasoning via Planning]",
+      "observation": "Reasoning via Planning: Reasoning via Planning, or RAP, runs Monte Carlo Tree Search using the language model itself as the world model. Hao and colleagues presented it at EMNLP in 2023.",
+      "detail": {
+        "query": "Reasoning via Planning",
+        "document": "Reasoning via Planning"
+      },
+      "terminal": false,
+      "created_at": 8
+    },
+    {
+      "id": 10,
+      "parent": 4,
+      "depth": 3,
+      "label": "search[Monte Carlo Tree Search]",
+      "action": "search[Monte Carlo Tree Search]",
+      "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+      "detail": {
+        "query": "Monte Carlo Tree Search",
+        "document": "Monte Carlo Tree Search"
+      },
+      "terminal": false,
+      "created_at": 8
+    },
+    {
+      "id": 11,
+      "parent": 5,
+      "depth": 3,
+      "label": "search[Reflexion]",
+      "action": "search[Reflexion]",
+      "observation": "Reflexion: Reflexion turns a failed attempt into a written note that is placed in the next prompt. Shinn and colleagues presented it at NeurIPS in 2023. It reflects, but it does not search.",
+      "detail": {
+        "query": "Reflexion",
+        "document": "Reflexion"
+      },
+      "terminal": false,
+      "created_at": 9
+    },
+    {
+      "id": 12,
+      "parent": 5,
+      "depth": 3,
+      "label": "finish[EMNLP 2023]",
+      "action": "finish[EMNLP 2023]",
+      "observation": "Answered 'EMNLP 2023'. The gold answer is 'Computers and Games 2006'.",
+      "detail": {
+        "answer": "EMNLP 2023",
+        "gold": "Computers and Games 2006",
+        "exact_match": false
+      },
+      "terminal": true,
+      "created_at": 9
+    },
+    {
+      "id": 13,
+      "parent": 5,
+      "depth": 3,
+      "label": "search[Monte Carlo Tree Search]",
+      "action": "search[Monte Carlo Tree Search]",
+      "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+      "detail": {
+        "query": "Monte Carlo Tree Search",
+        "document": "Monte Carlo Tree Search"
+      },
+      "terminal": false,
+      "created_at": 9
+    },
+    {
+      "id": 14,
+      "parent": 13,
+      "depth": 4,
+      "label": "search[Tree of Thoughts]",
+      "action": "search[Tree of Thoughts]",
+      "observation": "Tree of Thoughts: Tree of Thoughts searches over intermediate reasoning steps. Yao and colleagues presented it at NeurIPS in 2023. It has no environment, so it scores states by self-evaluation alone.",
+      "detail": {
+        "query": "Tree of Thoughts",
+        "document": "Tree of Thoughts"
+      },
+      "terminal": true,
+      "created_at": 12
+    },
+    {
+      "id": 15,
+      "parent": 13,
+      "depth": 4,
+      "label": "finish[EMNLP 2023]",
+      "action": "finish[EMNLP 2023]",
+      "observation": "Answered 'EMNLP 2023'. The gold answer is 'Computers and Games 2006'.",
+      "detail": {
+        "answer": "EMNLP 2023",
+        "gold": "Computers and Games 2006",
+        "exact_match": false
+      },
+      "terminal": true,
+      "created_at": 12
+    },
+    {
+      "id": 16,
+      "parent": 13,
+      "depth": 4,
+      "label": "finish[Computers and Games 2006]",
+      "action": "finish[Computers and Games 2006]",
+      "observation": "Answered 'Computers and Games 2006'. That is the gold answer.",
+      "detail": {
+        "answer": "Computers and Games 2006",
+        "gold": "Computers and Games 2006",
+        "exact_match": true
+      },
+      "terminal": true,
+      "created_at": 12
+    }
+  ],
+  "steps": [
+    {
+      "index": 0,
+      "op": "init",
+      "iteration": 0,
+      "title": "Root",
+      "summary": "Two-hop question answering. Tree of Thoughts searches breadth-first, keeping the best few states at each depth by the policy's own grade; reward is 1 if the answer names the gold venue and year, else 0 (an oracle signal).",
+      "detail": {
+        "task": {
+          "id": "multihop-qa",
+          "family": "qa",
+          "title": "Two-hop question answering",
+          "prompt": "LATS adapts an existing tree search algorithm. At which venue, and in which year, was the paper that introduced that algorithm presented?",
+          "reward": "1 if the answer names the gold venue and year, else 0 (an oracle signal)",
+          "context": {
+            "Tools": [
+              "search[term]",
+              "finish[answer]"
+            ],
+            "Corpus": [
+              "Language Agent Tree Search",
+              "Monte Carlo Tree Search",
+              "UCT",
+              "AlphaGo",
+              "Tree of Thoughts",
+              "Reflexion",
+              "Reasoning via Planning",
+              "ReAct"
+            ]
+          }
+        },
+        "config": {
+          "n": 3,
+          "w": 1.0,
+          "lambda": 0.5,
+          "iterations": 8,
+          "max_depth": 4,
+          "simulate": true,
+          "reflect": true,
+          "reflect_threshold": 1.0,
+          "solved_at": 1.0,
+          "seed": 7,
+          "evaluation": "before",
+          "beam": 2
+        }
+      },
+      "focus": [
+        0
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 0,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 1,
+      "op": "expansion",
+      "iteration": 1,
+      "title": "Expansion",
+      "summary": "3 samples from #0 reached 3 distinct states.",
+      "detail": {
+        "parent": 0,
+        "n": 3,
+        "children": [
+          {
+            "id": 1,
+            "label": "search[UCT]",
+            "text": "search[UCT]",
+            "observation": "UCT: UCT is the selection rule most Monte Carlo Tree Search implementations use. Kocsis and Szepesvari derived it from the UCB1 bandit algorithm and presented it at ECML in 2006.",
+            "detail": {
+              "query": "UCT",
+              "document": "UCT"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 2,
+            "label": "search[Monte Carlo Tree Search]",
+            "text": "search[Monte Carlo Tree Search]",
+            "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+            "detail": {
+              "query": "Monte Carlo Tree Search",
+              "document": "Monte Carlo Tree Search"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 3,
+            "label": "search[Reflexion]",
+            "text": "search[Reflexion]",
+            "observation": "Reflexion: Reflexion turns a failed attempt into a written note that is placed in the next prompt. Shinn and colleagues presented it at NeurIPS in 2023. It reflects, but it does not search.",
+            "detail": {
+              "query": "Reflexion",
+              "document": "Reflexion"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        1,
+        2,
+        3
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 139,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 2,
+      "op": "evaluation",
+      "iteration": 1,
+      "title": "Evaluation",
+      "summary": "Each state is valued by the policy's own grade of the step that made it, given before the step ran. Tree of Thoughts has no environment to ask.",
+      "detail": {
+        "lam": 1.0,
+        "timing": "before",
+        "scores": [
+          {
+            "id": 1,
+            "label": "search[UCT]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 2,
+            "label": "search[Monte Carlo Tree Search]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 3,
+            "label": "search[Reflexion]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          }
+        ]
+      },
+      "focus": [
+        1,
+        2,
+        3
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 139,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 3,
+      "op": "selection",
+      "iteration": 1,
+      "title": "Beam",
+      "summary": "Keep the 2 best of 3 by value; the other 1 are dropped and never reconsidered.",
+      "detail": {
+        "kind": "beam",
+        "beam": 2,
+        "depth": 1,
+        "ranked": [
+          {
+            "id": 1,
+            "label": "search[UCT]",
+            "value": 0.4,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 2,
+            "label": "search[Monte Carlo Tree Search]",
+            "value": 0.4,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 3,
+            "label": "search[Reflexion]",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          }
+        ],
+        "kept": [
+          1,
+          2
+        ],
+        "dropped": [
+          3
+        ]
+      },
+      "focus": [
+        1,
+        2
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 139,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        }
+      }
+    },
+    {
+      "index": 4,
+      "op": "expansion",
+      "iteration": 2,
+      "title": "Expansion",
+      "summary": "3 samples from #1 reached 3 distinct states.",
+      "detail": {
+        "parent": 1,
+        "n": 3,
+        "children": [
+          {
+            "id": 4,
+            "label": "search[Monte Carlo Tree Search]",
+            "text": "search[Monte Carlo Tree Search]",
+            "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+            "detail": {
+              "query": "Monte Carlo Tree Search",
+              "document": "Monte Carlo Tree Search"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.65,
+            "rejected": null
+          },
+          {
+            "id": 5,
+            "label": "search[Reasoning via Planning]",
+            "text": "search[Reasoning via Planning]",
+            "observation": "Reasoning via Planning: Reasoning via Planning, or RAP, runs Monte Carlo Tree Search using the language model itself as the world model. Hao and colleagues presented it at EMNLP in 2023.",
+            "detail": {
+              "query": "Reasoning via Planning",
+              "document": "Reasoning via Planning"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 6,
+            "label": "search[AlphaGo]",
+            "text": "search[AlphaGo]",
+            "observation": "AlphaGo: AlphaGo paired Monte Carlo Tree Search with a policy network and a value network. Silver and colleagues published it in Nature in 2016.",
+            "detail": {
+              "query": "AlphaGo",
+              "document": "AlphaGo"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        4,
+        5,
+        6
+      ],
+      "path": [
+        0,
+        1
+      ],
+      "tokens": 327,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 5,
+      "op": "expansion",
+      "iteration": 2,
+      "title": "Expansion",
+      "summary": "3 samples from #2 reached 2 distinct states.",
+      "detail": {
+        "parent": 2,
+        "n": 3,
+        "children": [
+          {
+            "id": 7,
+            "label": "search[Language Agent Tree Search]",
+            "text": "search[Language Agent Tree Search]",
+            "observation": "Language Agent Tree Search: Language Agent Tree Search, or LATS, was presented at ICML in 2024 by Zhou, Yan, Shlapentokh-Rothman, Wang and Wang. It adapts Monte Carlo Tree Search to language agents, adding a language model value function, real environment feedback, and a reflection step.",
+            "detail": {
+              "query": "Language Agent Tree Search",
+              "document": "Language Agent Tree Search"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 2,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 8,
+            "label": "search[Reasoning via Planning]",
+            "text": "search[Reasoning via Planning]",
+            "observation": "Reasoning via Planning: Reasoning via Planning, or RAP, runs Monte Carlo Tree Search using the language model itself as the world model. Hao and colleagues presented it at EMNLP in 2023.",
+            "detail": {
+              "query": "Reasoning via Planning",
+              "document": "Reasoning via Planning"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        7,
+        8
+      ],
+      "path": [
+        0,
+        2
+      ],
+      "tokens": 549,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "7": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "8": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 6,
+      "op": "evaluation",
+      "iteration": 2,
+      "title": "Evaluation",
+      "summary": "Each state is valued by the policy's own grade of the step that made it, given before the step ran. Tree of Thoughts has no environment to ask.",
+      "detail": {
+        "lam": 1.0,
+        "timing": "before",
+        "scores": [
+          {
+            "id": 4,
+            "label": "search[Monte Carlo Tree Search]",
+            "prior": 0.65,
+            "lm": 0.65,
+            "sc": 0.0,
+            "value": 0.65,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 5,
+            "label": "search[Reasoning via Planning]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 6,
+            "label": "search[AlphaGo]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 7,
+            "label": "search[Language Agent Tree Search]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 8,
+            "label": "search[Reasoning via Planning]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          }
+        ]
+      },
+      "focus": [
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 549,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 7,
+      "op": "selection",
+      "iteration": 2,
+      "title": "Beam",
+      "summary": "Keep the 2 best of 5 by value; the other 3 are dropped and never reconsidered.",
+      "detail": {
+        "kind": "beam",
+        "beam": 2,
+        "depth": 2,
+        "ranked": [
+          {
+            "id": 4,
+            "label": "search[Monte Carlo Tree Search]",
+            "value": 0.65,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 5,
+            "label": "search[Reasoning via Planning]",
+            "value": 0.4,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 6,
+            "label": "search[AlphaGo]",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 7,
+            "label": "search[Language Agent Tree Search]",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 8,
+            "label": "search[Reasoning via Planning]",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          }
+        ],
+        "kept": [
+          4,
+          5
+        ],
+        "dropped": [
+          6,
+          7,
+          8
+        ]
+      },
+      "focus": [
+        4,
+        5
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 549,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        }
+      }
+    },
+    {
+      "index": 8,
+      "op": "expansion",
+      "iteration": 3,
+      "title": "Expansion",
+      "summary": "3 samples from #4 reached 2 distinct states.",
+      "detail": {
+        "parent": 4,
+        "n": 3,
+        "children": [
+          {
+            "id": 9,
+            "label": "search[Reasoning via Planning]",
+            "text": "search[Reasoning via Planning]",
+            "observation": "Reasoning via Planning: Reasoning via Planning, or RAP, runs Monte Carlo Tree Search using the language model itself as the world model. Hao and colleagues presented it at EMNLP in 2023.",
+            "detail": {
+              "query": "Reasoning via Planning",
+              "document": "Reasoning via Planning"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 10,
+            "label": "search[Monte Carlo Tree Search]",
+            "text": "search[Monte Carlo Tree Search]",
+            "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+            "detail": {
+              "query": "Monte Carlo Tree Search",
+              "document": "Monte Carlo Tree Search"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 2,
+            "prior": 0.35,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        9,
+        10
+      ],
+      "path": [
+        0,
+        1,
+        4
+      ],
+      "tokens": 817,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "9": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "10": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.35,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 9,
+      "op": "expansion",
+      "iteration": 3,
+      "title": "Expansion",
+      "summary": "3 samples from #5 reached 3 distinct states.",
+      "detail": {
+        "parent": 5,
+        "n": 3,
+        "children": [
+          {
+            "id": 11,
+            "label": "search[Reflexion]",
+            "text": "search[Reflexion]",
+            "observation": "Reflexion: Reflexion turns a failed attempt into a written note that is placed in the next prompt. Shinn and colleagues presented it at NeurIPS in 2023. It reflects, but it does not search.",
+            "detail": {
+              "query": "Reflexion",
+              "document": "Reflexion"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 12,
+            "label": "finish[EMNLP 2023]",
+            "text": "finish[EMNLP 2023]",
+            "observation": "Answered 'EMNLP 2023'. The gold answer is 'Computers and Games 2006'.",
+            "detail": {
+              "answer": "EMNLP 2023",
+              "gold": "Computers and Games 2006",
+              "exact_match": false
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.85,
+            "rejected": null
+          },
+          {
+            "id": 13,
+            "label": "search[Monte Carlo Tree Search]",
+            "text": "search[Monte Carlo Tree Search]",
+            "observation": "Monte Carlo Tree Search: Monte Carlo Tree Search is a planning algorithm that grows a tree of simulated futures. Remi Coulom introduced it, presenting Efficient Selectivity and Backup Operators for Monte-Carlo Tree Search at Computers and Games in 2006.",
+            "detail": {
+              "query": "Monte Carlo Tree Search",
+              "document": "Monte Carlo Tree Search"
+            },
+            "terminal": false,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.65,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        11,
+        12,
+        13
+      ],
+      "path": [
+        0,
+        1,
+        5
+      ],
+      "tokens": 1055,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "9": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "10": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.35,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "11": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "12": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 10,
+      "op": "evaluation",
+      "iteration": 3,
+      "title": "Evaluation",
+      "summary": "Each state is valued by the policy's own grade of the step that made it, given before the step ran. Tree of Thoughts has no environment to ask.",
+      "detail": {
+        "lam": 1.0,
+        "timing": "before",
+        "scores": [
+          {
+            "id": 9,
+            "label": "search[Reasoning via Planning]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 10,
+            "label": "search[Monte Carlo Tree Search]",
+            "prior": 0.35,
+            "lm": 0.35,
+            "sc": 0.0,
+            "value": 0.35,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 11,
+            "label": "search[Reflexion]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 12,
+            "label": "finish[EMNLP 2023]",
+            "prior": 0.85,
+            "lm": 0.85,
+            "sc": 0.0,
+            "value": 0.85,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 13,
+            "label": "search[Monte Carlo Tree Search]",
+            "prior": 0.65,
+            "lm": 0.65,
+            "sc": 0.0,
+            "value": 0.65,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          }
+        ]
+      },
+      "focus": [
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 1055,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.35,
+          "reward": null,
+          "lm": 0.35,
+          "sc": null,
+          "prior": 0.35,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": null,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 11,
+      "op": "selection",
+      "iteration": 3,
+      "title": "Beam",
+      "summary": "Keep the 2 best of 5 by value; the other 3 are dropped and never reconsidered.",
+      "detail": {
+        "kind": "beam",
+        "beam": 2,
+        "depth": 3,
+        "ranked": [
+          {
+            "id": 12,
+            "label": "finish[EMNLP 2023]",
+            "value": 0.85,
+            "kept": true,
+            "answer": true
+          },
+          {
+            "id": 13,
+            "label": "search[Monte Carlo Tree Search]",
+            "value": 0.65,
+            "kept": true,
+            "answer": false
+          },
+          {
+            "id": 9,
+            "label": "search[Reasoning via Planning]",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 11,
+            "label": "search[Reflexion]",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          },
+          {
+            "id": 10,
+            "label": "search[Monte Carlo Tree Search]",
+            "value": 0.35,
+            "kept": false,
+            "answer": false
+          }
+        ],
+        "kept": [
+          12,
+          13
+        ],
+        "dropped": [
+          9,
+          11,
+          10
+        ]
+      },
+      "focus": [
+        12,
+        13
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 1055,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.35,
+          "reward": null,
+          "lm": 0.35,
+          "sc": null,
+          "prior": 0.35,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": null,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 12,
+      "op": "expansion",
+      "iteration": 4,
+      "title": "Expansion",
+      "summary": "3 samples from #13 reached 3 distinct states.",
+      "detail": {
+        "parent": 13,
+        "n": 3,
+        "children": [
+          {
+            "id": 14,
+            "label": "search[Tree of Thoughts]",
+            "text": "search[Tree of Thoughts]",
+            "observation": "Tree of Thoughts: Tree of Thoughts searches over intermediate reasoning steps. Yao and colleagues presented it at NeurIPS in 2023. It has no environment, so it scores states by self-evaluation alone.",
+            "detail": {
+              "query": "Tree of Thoughts",
+              "document": "Tree of Thoughts"
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.4,
+            "rejected": null
+          },
+          {
+            "id": 15,
+            "label": "finish[EMNLP 2023]",
+            "text": "finish[EMNLP 2023]",
+            "observation": "Answered 'EMNLP 2023'. The gold answer is 'Computers and Games 2006'.",
+            "detail": {
+              "answer": "EMNLP 2023",
+              "gold": "Computers and Games 2006",
+              "exact_match": false
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.655,
+            "rejected": null
+          },
+          {
+            "id": 16,
+            "label": "finish[Computers and Games 2006]",
+            "text": "finish[Computers and Games 2006]",
+            "observation": "Answered 'Computers and Games 2006'. That is the gold answer.",
+            "detail": {
+              "answer": "Computers and Games 2006",
+              "gold": "Computers and Games 2006",
+              "exact_match": true
+            },
+            "terminal": true,
+            "reward": null,
+            "samples": 1,
+            "prior": 0.85,
+            "rejected": null
+          }
+        ]
+      },
+      "focus": [
+        14,
+        15,
+        16
+      ],
+      "path": [
+        0,
+        1,
+        5,
+        13
+      ],
+      "tokens": 1370,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.35,
+          "reward": null,
+          "lm": 0.35,
+          "sc": null,
+          "prior": 0.35,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": null,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "15": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.655,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "16": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 13,
+      "op": "evaluation",
+      "iteration": 4,
+      "title": "Evaluation",
+      "summary": "Each state is valued by the policy's own grade of the step that made it, given before the step ran. Tree of Thoughts has no environment to ask.",
+      "detail": {
+        "lam": 1.0,
+        "timing": "before",
+        "scores": [
+          {
+            "id": 14,
+            "label": "search[Tree of Thoughts]",
+            "prior": 0.4,
+            "lm": 0.4,
+            "sc": 0.0,
+            "value": 0.4,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 15,
+            "label": "finish[EMNLP 2023]",
+            "prior": 0.655,
+            "lm": 0.655,
+            "sc": 0.0,
+            "value": 0.655,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          },
+          {
+            "id": 16,
+            "label": "finish[Computers and Games 2006]",
+            "prior": 0.85,
+            "lm": 0.85,
+            "sc": 0.0,
+            "value": 0.85,
+            "reward": null,
+            "why": "The policy's grade of the step, from before it ran."
+          }
+        ]
+      },
+      "focus": [
+        14,
+        15,
+        16
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 1370,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.35,
+          "reward": null,
+          "lm": 0.35,
+          "sc": null,
+          "prior": 0.35,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": null,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "15": {
+          "visits": 1,
+          "value": 0.655,
+          "reward": null,
+          "lm": 0.655,
+          "sc": null,
+          "prior": 0.655,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "16": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": null,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 14,
+      "op": "selection",
+      "iteration": 4,
+      "title": "Beam",
+      "summary": "Keep the 2 best of 3 by value; the other 1 are dropped and never reconsidered.",
+      "detail": {
+        "kind": "beam",
+        "beam": 2,
+        "depth": 4,
+        "ranked": [
+          {
+            "id": 16,
+            "label": "finish[Computers and Games 2006]",
+            "value": 0.85,
+            "kept": true,
+            "answer": true
+          },
+          {
+            "id": 15,
+            "label": "finish[EMNLP 2023]",
+            "value": 0.655,
+            "kept": true,
+            "answer": true
+          },
+          {
+            "id": 14,
+            "label": "search[Tree of Thoughts]",
+            "value": 0.4,
+            "kept": false,
+            "answer": false
+          }
+        ],
+        "kept": [
+          16,
+          15
+        ],
+        "dropped": [
+          14
+        ]
+      },
+      "focus": [
+        16,
+        15
+      ],
+      "path": [
+        0
+      ],
+      "tokens": 1370,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.35,
+          "reward": null,
+          "lm": 0.35,
+          "sc": null,
+          "prior": 0.35,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": null,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        },
+        "15": {
+          "visits": 1,
+          "value": 0.655,
+          "reward": null,
+          "lm": 0.655,
+          "sc": null,
+          "prior": 0.655,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "16": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": null,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    },
+    {
+      "index": 15,
+      "op": "result",
+      "iteration": 4,
+      "title": "Search over",
+      "summary": "Stopped without solving - the depth limit was reached. Reward 0.",
+      "detail": {
+        "solved": false,
+        "best_reward": 0.0,
+        "best_node": 12,
+        "best_path": [
+          0,
+          1,
+          5,
+          12
+        ],
+        "nodes": 17,
+        "iterations_run": 4,
+        "stopped_because": "the depth limit was reached",
+        "reflections": [],
+        "missed": [
+          16
+        ]
+      },
+      "focus": [
+        0,
+        1,
+        5,
+        12
+      ],
+      "path": [
+        0,
+        1,
+        5,
+        12
+      ],
+      "tokens": 1370,
+      "state": {
+        "0": {
+          "visits": 1,
+          "value": null,
+          "reward": null,
+          "lm": null,
+          "sc": null,
+          "prior": null,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "1": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "2": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "3": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "4": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "5": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "6": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "7": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "8": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "9": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "10": {
+          "visits": 1,
+          "value": 0.35,
+          "reward": null,
+          "lm": 0.35,
+          "sc": null,
+          "prior": 0.35,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "11": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": false,
+          "reflected": false,
+          "pruned": true
+        },
+        "12": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": 0.0,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "13": {
+          "visits": 1,
+          "value": 0.65,
+          "reward": null,
+          "lm": 0.65,
+          "sc": null,
+          "prior": 0.65,
+          "terminal": false,
+          "reflected": false,
+          "pruned": false
+        },
+        "14": {
+          "visits": 1,
+          "value": 0.4,
+          "reward": null,
+          "lm": 0.4,
+          "sc": null,
+          "prior": 0.4,
+          "terminal": true,
+          "reflected": false,
+          "pruned": true
+        },
+        "15": {
+          "visits": 1,
+          "value": 0.655,
+          "reward": 0.0,
+          "lm": 0.655,
+          "sc": null,
+          "prior": 0.655,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        },
+        "16": {
+          "visits": 1,
+          "value": 0.85,
+          "reward": 1.0,
+          "lm": 0.85,
+          "sc": null,
+          "prior": 0.85,
+          "terminal": true,
+          "reflected": false,
+          "pruned": false
+        }
+      }
+    }
+  ]
+}

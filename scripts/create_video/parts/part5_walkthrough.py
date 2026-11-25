@@ -184,7 +184,7 @@ class Part5Walkthrough(LATSScene):
         card = section_card(5, "LATS in Action", "One task, start to finish")
         self.play(LaggedStart(*[FadeIn(m, shift=UP * 0.2) for m in card],
                               lag_ratio=0.18), run_time=T_NORM)
-        self.wait(5.0)
+        self.wait(3.47)
         self.play(FadeOut(card), run_time=T_FAST)
 
     # -- 2. The task and its tests ------------------------------------------
@@ -197,7 +197,6 @@ class Part5Walkthrough(LATSScene):
         cap_width(spec, 11.5)
         spec.move_to([0, 2.15, 0])
         self.play(FadeIn(spec, shift=UP * 0.2), run_time=T_NORM)
-        self.wait(2.0)
 
         rows = self._test_rows(size=FS_SMALL)
         rows.move_to([-0.7, -0.45, 0])
@@ -206,7 +205,6 @@ class Part5Walkthrough(LATSScene):
         self.play(FadeIn(tag), run_time=T_FAST)
         self.play(LaggedStart(*[FadeIn(r, shift=RIGHT * 0.2) for r in rows],
                               lag_ratio=0.2), run_time=1.6)
-        self.wait(4.6)
 
         # Brace against the block's full width, not the union of the braced
         # rows: the rows have ragged right edges, and a Brace fitted to that
@@ -234,7 +232,7 @@ class Part5Walkthrough(LATSScene):
                          size=FS_H3, color=GOOD)
         reward.move_to([0, -2.75, 0])
         self.play(FadeIn(reward, shift=UP * 0.2), run_time=T_NORM)
-        self.wait(4.8)
+        self.wait(10.27)
 
         self.play(FadeOut(VGroup(spec, rows, tag, brace_top, brace_bot,
                                  sorted_note, unsorted_note, reward)),
@@ -275,26 +273,28 @@ class Part5Walkthrough(LATSScene):
             listing.add(VGroup(tag_key, body))
         self.play(LaggedStart(*[FadeIn(m, shift=RIGHT * 0.2) for m in listing],
                               lag_ratio=0.25), run_time=1.4)
-        self.wait(3.4)
+        self.wait(0.5)
 
-        # Evaluation.
-        self.play(Transform(step, chip("Evaluation", TEAL, size=FS_SMALL)
-                            .move_to(step.get_center())), run_time=T_FAST)
+        # Evaluation. The narrated cut swaps the step chip with a hard cut,
+        # here and at Selection below, and joins the animation after it
+        # partway through - hence their short run times.
+        step.become(chip("Evaluation", TEAL, size=FS_SMALL)
+                    .move_to(step.get_center()))
         scores = VGroup()
         for y, (key, _, value) in zip(rows_y, CANDIDATES):
             score = mathtex(rf"V = {value:.2f}", size=FS_SMALL, color=INK)
             score.move_to([score_right, y, 0], aligned_edge=RIGHT)
             scores.add(score)
         self.play(LaggedStart(*[FadeIn(s) for s in scores], lag_ratio=0.25),
-                  run_time=1.1)
+                  run_time=0.63)
         for key, _, value in CANDIDATES:
             self.play(tree.set_value(key, value), run_time=0.3)
-        self.wait(7.4)
+        self.wait(4.67)
 
         # Selection and simulation.
-        self.play(Transform(step, chip("Selection", PRIMARY, size=FS_SMALL)
-                            .move_to(step.get_center())), run_time=T_FAST)
-        self.play(*tree.highlight_path(["root", "A"]), run_time=T_NORM)
+        step.become(chip("Selection", PRIMARY, size=FS_SMALL)
+                    .move_to(step.get_center()))
+        self.play(*tree.highlight_path(["root", "A"]), run_time=0.23)
         self.play(FadeOut(VGroup(listing[1], listing[2], scores[1], scores[2])),
                   run_time=T_FAST)
         self.play(VGroup(listing[0], scores[0]).animate.move_to([3.15, 2.3, 0]),
@@ -332,7 +332,7 @@ class Part5Walkthrough(LATSScene):
             self.play(tree.set_value(key, value),
                       Flash(tree.pos(key), color=GOOD, line_length=0.18,
                             flash_radius=0.5), run_time=0.65)
-        self.wait(8.1)
+        self.wait(14.77)
 
         self.play(FadeOut(VGroup(run_tag, code, marks, label, score, back,
                                  listing[0], scores[0],
@@ -364,8 +364,8 @@ class Part5Walkthrough(LATSScene):
                       stroke_width=3, color=VIOLET,
                       max_tip_length_to_length_ratio=0.3)
         self.play(Create(arrow), FadeIn(into), run_time=T_NORM)
-        self.wait(4.4)
-        self.play(FadeOut(VGroup(note, tag, arrow, into)), run_time=T_NORM)
+        self.wait(2.34)
+        self.play(FadeOut(VGroup(note, tag, arrow, into)), run_time=0.36)
 
     # -- 5. Second iteration ------------------------------------------------
 
@@ -411,7 +411,7 @@ class Part5Walkthrough(LATSScene):
                                     corner_radius=0.12, stroke_width=3)
         self.play(Create(ring), *tree.highlight_path(["root", "B"]),
                   run_time=T_NORM)
-        self.wait(10.6)
+        self.wait(9.54)
 
         self.play(FadeOut(VGroup(header, rows, ring)), run_time=T_NORM)
 
@@ -448,7 +448,7 @@ class Part5Walkthrough(LATSScene):
         done = chip("Solved", GOOD, size=FS_SMALL)
         done.next_to(tree.node("B1"), DOWN, buff=0.34)
         self.play(FadeIn(done, scale=0.85), run_time=T_NORM)
-        self.wait(4.0)
+        self.wait(2.14)
 
         self.play(FadeOut(VGroup(code, one_line, marks, label, score, done,
                                  tree)), run_time=T_NORM)
@@ -493,7 +493,7 @@ class Part5Walkthrough(LATSScene):
         self.play(FadeIn(linear), run_time=T_NORM)
         self.wait(7.6)
         self.play(FadeIn(lats), run_time=T_NORM)
-        self.wait(3.4)
+        self.wait(2.57)
 
         # The backward move is the whole difference; draw it and let it stand.
         arrow = CurvedArrow(lats[2][0].get_top() + UP * 0.1,
